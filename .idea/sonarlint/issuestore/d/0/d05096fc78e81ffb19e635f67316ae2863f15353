@@ -1,4 +1,0 @@
-
-…python:S101"gRename class "RFC_Algorithm" to match the regular expression ^_?([A-Z_][a-zA-Z0-9]*|[a-z_][a-z0-9_]*)$.(ÕÊ©8é åÀ2
-vpython:S117&"SRename this parameter "X_train" to match the regular expression ^[_a-z][a-z0-9_]*$.(öàĞñüÿÿÿÿ8é åÀ2
-upython:S117/"RRename this parameter "X_test" to match the regular expression ^[_a-z][a-z0-9_]*$.(É×âºÿÿÿÿÿ8é åÀ2
