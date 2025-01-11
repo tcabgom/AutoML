@@ -1,0 +1,4 @@
+
+Špython:S101"gRename class "DTR_Algorithm" to match the regular expression ^_?([A-Z_][a-zA-Z0-9]*|[a-z_][a-z0-9_]*)$.(¡ƒ…£ÿÿÿÿÿ8ƒÆï™Á2
+vpython:S117$"SRename this parameter "X_train" to match the regular expression ^[_a-z][a-z0-9_]*$.(öàÐñüÿÿÿÿ8ƒÆï™Á2
+upython:S117."RRename this parameter "X_test" to match the regular expression ^[_a-z][a-z0-9_]*$.(É×âºÿÿÿÿÿ8Çžñ™Á2

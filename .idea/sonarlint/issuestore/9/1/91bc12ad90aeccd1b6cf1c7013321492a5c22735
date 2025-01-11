@@ -1,0 +1,13 @@
+
+ppython:S117"RRename this parameter "X_test" to match the regular expression ^[_a-z][a-z0-9_]*$.(åçÖÂ8¯¡°¾Â2
+qpython:S117"SRename this parameter "X_train" to match the regular expression ^[_a-z][a-z0-9_]*$.(åçÖÂ8¯¡°¾Â2
+wpython:S117@"YRename this local variable "X_sample" to match the regular expression ^[_a-z][a-z0-9_]*$.(èÇÓ´8¯¡°¾Â2
+opython:S117"RRename this parameter "X_test" to match the regular expression ^[_a-z][a-z0-9_]*$.(ƒœï"8¯¡°¾Â2
+ppython:S117"SRename this parameter "X_train" to match the regular expression ^[_a-z][a-z0-9_]*$.(ƒœï"8¯¡°¾Â2
+{python:S117+"XRename this local variable "algBase" to match the regular expression ^[_a-z][a-z0-9_]*$.(›÷­‡ùÿÿÿÿ8¯¡°¾Â2
+Mpython:S1481&".Remove the unused local variable "best_model".(à…œ8’¨±¾Â2
+Dpython:S1481C"%Remove the unused local variable "i".(Íˆúø8¯¡°¾Â2
+bpython:S67114"DUse a "numpy.random.Generator" here instead of this legacy function.(½‹8¯¡°¾Â2
+Øpython:S1515N"¸Add a parameter to the parent lambda function and use variable "adquisition_function" as its default value; The value of "adquisition_function" might change at the next loop iteration.(Ç 8¯¡°¾Â2
+hpython:S6711O"DUse a "numpy.random.Generator" here instead of this legacy function.(‚Áœåøÿÿÿÿ8¯¡°¾Â2
+Wpython:S5727^"3Remove this identity check; it will always be True.(åÍµ…ùÿÿÿÿ8Äİ±¾Â2
