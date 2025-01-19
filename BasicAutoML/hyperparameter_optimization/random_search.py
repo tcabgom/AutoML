@@ -40,7 +40,7 @@ def random_search(X_train, y_train, X_test, y_test, classification=True):
         algBase = algorithm()
         hyperparameters_limits = algBase.get_hyperparameter_limits()
 
-        for _ in tqdm(range(ITERATIONS), desc=f"Evaluating {algorithm.__name__}...", unit="iteration"):
+        for _ in tqdm(range(ITERATIONS), desc=f"Evaluating {algorithm.__name__}...", unit=" iteration"):
 
             alg = algorithm()   # Create an instance of the algorithm
             chosen_hyperparameters = select_random_hyperparameters(hyperparameters_limits)
