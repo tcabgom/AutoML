@@ -101,9 +101,11 @@ class AutoML:
 
 if __name__ == "__main__":
     automl = AutoML()
-    #automl.load_csv("datasets/classification/Iris.csv", sep=",", target_column="Species", is_classification=True)
-    automl.load_csv("datasets/classification/titanic.csv", sep=",", target_column="Survived", is_classification=True)
+    automl.load_csv("datasets/classification/Iris.csv", sep=",", target_column="Species", is_classification=True)
+    #automl.load_csv("datasets/classification/titanic.csv", sep=",", target_column="Survived", is_classification=True)
     automl.normalize_data()
     automl.perform_random_search()
+    automl.perform_bayesian_optimization()
     print(automl.get_best_score())
+    print(automl.get_best_hyperparameters())
 
