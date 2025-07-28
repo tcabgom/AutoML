@@ -3,55 +3,49 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 
+from BasicAutoML.src.algorithms.classification import XGBC, ETC
+from BasicAutoML.src.data_loader import DataLoader
 from BasicAutoML.src.preprocessing import Preprocessor
-from sklearn.datasets import fetch_openml, make_classification
 
-from BasicAutoML.src.searches.random_search_unimodel import RandomSearchUnimodelAutoML
+from BasicAutoML.src.searches.random_search import RandomSearchAutoML
+from BasicAutoML.src.searches.bayesian_optimization import BayesianSearchAutoML
+from algorithms.classification import DTC
+from algorithms.classification import RFC
+
+
+
+
 if __name__ == "__main__":
-    df = pd.read_csv("../OldAutoML/datasets/classification/titanic.csv", sep=",", encoding="utf-8")
-    preprocessor = Preprocessor(target_column="Survived",
-                                forced_dropped_columns=["PassengerId"],
+    data = DataLoader("adult")
+    (X,y) = data.load_data()
+    df = pd.concat([X, y], axis=1)
+
+
+    preprocessor = Preprocessor(target_column="class",
+                                forced_dropped_columns=[],
                                 too_many_lost_values_threshold=0.3,
                                 too_many_categorical_value_threshold=0.05,
                                 numerical_scaling="minmax",
                                 verbose=True)
 
     preprocessed_df = preprocessor.fit_transform(df)
-    X, y = make_classification(
-        n_samples=10000,
-        n_features=20,
-        n_informative=15,
-        n_redundant=5,
-        n_classes=2,
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        preprocessed_df.drop(columns=["class"]),
+        preprocessed_df["class"],
+        test_size=0.2,
         random_state=42
     )
 
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        preprocessed_df.drop(columns=["Survived"]), preprocessed_df["Survived"], test_size=0.3, random_state=42
-    )
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42
-    )
-
-    param_distributions = {
-        "criterion": ["gini", "entropy"],
-        "max_depth": [None, 5, 10, 15, 20],
-        "min_samples_split": (2,10),
-        "min_samples_leaf": [1, 2, 4],
-        "class_weight": [None, "balanced"]
-    }
-
-    automl = RandomSearchUnimodelAutoML(
-        model_class=DecisionTreeClassifier,
-        param_distributions=param_distributions,
-        n_trials=50,
+    automl = BayesianSearchAutoML(
+        algorithms=[DTC.Algorithm_DTC(), RFC.Algorithm_RFC(), ETC.Algorithm_ETC(), XGBC.Algorithm_XGBC()],
+        n_trials=500,
         scoring="roc_auc",
         cv=5,
         verbose=True,
         random_state=42,
-        timeout=30
+        timeout=300
     )
 
     automl.fit(X_train, y_train)

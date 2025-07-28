@@ -7,10 +7,9 @@ from sklearn.model_selection import cross_val_score
 from sklearn.metrics import get_scorer
 
 
-class BayesianSearchUnimodelAutoML:
+class BayesianSearchAutoML:
     def __init__(self,
-                 model_class: type,
-                 param_distributions: dict,
+                 algorithms: list,
                  n_trials: int = 120,
                  timeout: float = 60,
                  scoring: str = "roc_auc",
@@ -18,8 +17,7 @@ class BayesianSearchUnimodelAutoML:
                  verbose: bool = False,
                  random_state=None):
 
-        self.model_class = model_class
-        self.param_distributions = param_distributions
+        self.algorithms = algorithms
         self.n_trials = n_trials
         self.timeout = timeout
         self.scoring = scoring
@@ -30,6 +28,8 @@ class BayesianSearchUnimodelAutoML:
         self.best_score = -np.inf
         self.best_params = None
         self.best_model = None
+        self.best_model_class = None
+        self.best_algorithm = None
         self.study = None
 
         if self.random_state is not None:
@@ -38,32 +38,40 @@ class BayesianSearchUnimodelAutoML:
 
         optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-
     def __objective(self, trial: optuna.Trial, x_data: pd.DataFrame, y_data: pd.DataFrame) -> float:
+        algo_choices = {algo.get_name(): algo for algo in self.algorithms}
+        algo_name = trial.suggest_categorical("algorithm", list(algo_choices.keys()))
+        algo_obj = algo_choices[algo_name]
+
+        model_class = algo_obj.get_algorithm_class()
+        param_space = algo_obj.get_algorithm_params()
+
         params = {}
-        for param_name, distribution in self.param_distributions.items():
-            if isinstance(distribution, list):  # Categorical
-                params[param_name] = trial.suggest_categorical(param_name, distribution)
+        for param_name, distribution in param_space.items():
+            full_name = f"{algo_name}__{param_name}"  # avoid collision in Optuna param names
+            if isinstance(distribution, list):
+                params[param_name] = trial.suggest_categorical(full_name, distribution)
             elif isinstance(distribution, tuple) and len(distribution) == 2:
                 low, high = distribution
                 if all(isinstance(v, int) for v in (low, high)):
-                    params[param_name] = trial.suggest_int(param_name, low, high)
+                    params[param_name] = trial.suggest_int(full_name, low, high)
                 else:
-                    params[param_name] = trial.suggest_float(param_name, low, high)
+                    params[param_name] = trial.suggest_float(full_name, low, high)
             else:
                 raise ValueError(f"Unsupported distribution type for param: {param_name}")
 
-        model = self.model_class(**params)
+        model = model_class(**params)
         scorer = get_scorer(self.scoring)
-
         scores = cross_val_score(model, x_data, y_data, cv=self.cv, scoring=scorer)
         mean_score = float(np.mean(scores))
 
         if self.verbose:
-            print(f"Trial {trial.number + 1} | Score: {mean_score:.4f} | Params: {params}")
+            print(
+                f"Trial {trial.number + 1} | Model: {model_class.__name__} | Score: {mean_score:.4f} | Params: {params}")
+
+        trial.set_user_attr("algo_obj", algo_obj)
 
         return mean_score
-
 
     def fit(self, x_data: pd.DataFrame, y_data: pd.DataFrame) -> None:
         self.study = optuna.create_study(
@@ -79,7 +87,14 @@ class BayesianSearchUnimodelAutoML:
 
         self.best_params = self.study.best_params
         self.best_score = self.study.best_value
-        self.best_model = self.model_class(**self.best_params)
+        self.best_algorithm = self.study.best_trial.user_attrs["algo_obj"]
+        self.best_model_class = self.best_algorithm.get_algorithm_class()
+
+        # Extract the parameters for the best algorithm
+        prefix = self.best_algorithm.get_name() + "__"
+        model_params = { k.replace(prefix, ""): v for k, v in self.best_params.items() if k.startswith(prefix) }
+
+        self.best_model = self.best_model_class(**model_params)
         self.best_model.fit(x_data, y_data)
 
 

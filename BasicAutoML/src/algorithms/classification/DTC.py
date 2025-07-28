@@ -1,13 +1,19 @@
 from sklearn.tree import DecisionTreeClassifier
+from .. import parent_algorithm
 
-model_class = DecisionTreeClassifier
-param_distribution = {
-    "criterion": ["gini", "entropy", "log_loss"],
-    "splitter": ["best", "random"],
-    "max_depth": (1,25),
-    "min_sample_split": (2,20),
-    "min_sample_leaf": (1,10),
-    "class_weight": [None, "balanced"],
-    "max_leaf_nodes": (2,100),
-    "cpp_alpha": (0.0, 0.05)
-}
+class Algorithm_DTC (parent_algorithm.ParentAlgorithm):
+
+    def get_name(self) -> str:
+        return "Decision Tree Classifier"
+
+    def get_algorithm_class(self) -> type:
+        return DecisionTreeClassifier
+
+    def get_algorithm_params(self) -> dict:
+        return {
+            "criterion": ["gini", "entropy", "log_loss"],   # Evaluation function of division quality
+            "splitter": ["best", "random"],                 # Division strategy
+            "max_depth": (1, 25),                           # Tree max depth
+            "class_weight": [None, "balanced"],
+            "max_leaf_nodes": (2, 100),
+        }
