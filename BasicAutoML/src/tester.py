@@ -1,22 +1,18 @@
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
 
-from BasicAutoML.src.algorithms.classification import XGBC, ETC
 from BasicAutoML.src.data_loader import DataLoader
 from BasicAutoML.src.preprocessing import Preprocessor
 
 from BasicAutoML.src.searches.random_search import RandomSearchAutoML
 from BasicAutoML.src.searches.bayesian_optimization import BayesianSearchAutoML
-from algorithms.classification import DTC
-from algorithms.classification import RFC
+from algorithms.classification import DecisionTree, RandomForest, GradientBoosting, ExtraTree
 
 
 
 
 if __name__ == "__main__":
-    data = DataLoader("adult")
+    data = DataLoader("heart-statlog")
     (X,y) = data.load_data()
     df = pd.concat([X, y], axis=1)
 
@@ -39,7 +35,7 @@ if __name__ == "__main__":
 
 
     automl = BayesianSearchAutoML(
-        algorithms=[DTC.Algorithm_DTC(), RFC.Algorithm_RFC(), ETC.Algorithm_ETC(), XGBC.Algorithm_XGBC()],
+        algorithms=[DecisionTree.Algorithm_DTC(), RandomForest.Algorithm_RFC(), ExtraTree.Algorithm_ETC(), GradientBoosting.Algorithm_XGBC()],
         n_trials=500,
         scoring="roc_auc",
         cv=5,

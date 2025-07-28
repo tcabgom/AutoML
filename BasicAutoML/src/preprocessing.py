@@ -12,7 +12,7 @@ class Preprocessor:
                  numerical_scaling: str = "minmax",  # "standard", "min_max", "none"
                  verbose: bool = False):
 
-        if numerical_scaling not in ["standard", "minmax", "none"]:
+        if numerical_scaling not in ["standard", "minmax", "robustScaler", "none"]:
             raise ValueError("Invalid numerical scaling method. Choose 'standard', 'minmax' or 'none'.")
 
         self.target_column = target_column
@@ -86,6 +86,14 @@ class Preprocessor:
                     self.numerical_scaling_params[column] = {'min': df[column].min(), 'max': df[column].max()}
                     if self.verbose:
                         print(f" - Column '{column}': Numerical scaling set to minmax. Min: {self.numerical_scaling_params[column]['min']}, Max: {self.numerical_scaling_params[column]['max']}. Null values will be filled with {self.means[column]}.")
+                elif self.numerical_scaling == "robustScaler":
+                    median_val = df[column].median()
+                    q1_val = df[column].quantile(0.25)
+                    q3_val = df[column].quantile(0.75)
+                    iqr = q3_val - q1_val
+                    self.numerical_scaling_params[column] = {'median': median_val, 'iqr': iqr}
+                    if self.verbose:
+                        print(f" - Column '{column}': Numerical scaling set to robustScaler. Median: {median_val}, IQR: {iqr}. Null values will be filled with {self.means[column]}.")
                 elif self.verbose:
                     print(f" - Column '{column}': Numerical scaling set to none. No scaling will be applied. Null values will be filled with {self.means[column]}.")
 
@@ -121,6 +129,15 @@ class Preprocessor:
                     std_val = self.numerical_scaling_params[col]['std']
                     if std_val != 0:
                         df[col] = (df[col] - mean_val) / std_val
+                    else:
+                        df[col] = 0.0
+                elif self.numerical_scaling == 'robustScaler':
+                    median_val = df[col].median()
+                    q1_val = df[col].quantile(0.25)
+                    q3_val = df[col].quantile(0.75)
+                    iqr = q3_val - q1_val
+                    if iqr != 0:
+                        df[col] = (df[col] - median_val) / iqr
                     else:
                         df[col] = 0.0
 
