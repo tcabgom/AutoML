@@ -3,24 +3,25 @@ import pandas as pd
 
 class Preprocessor:
     def __init__(self,
-                 target_column: str,
                  forced_dropped_columns: list = [],
                  # If the percentage of lost values in a column is greater than this threshold, the column will be removed
                  too_many_lost_values_threshold: float = 0.3,
                  # If the percentage of unique values in a categorical column is greater than this threshold, the column will be removed
                  too_many_categorical_value_threshold: float = 0.05,
-                 numerical_scaling: str = "minmax",  # "standard", "min_max", "none"
+                 numerical_scaling: str = "minmax",  # "standard", "min_max", "robustScaler", "none"
+                 too_many_lost_values_bool_columns: bool = False,
                  verbose: bool = False):
 
         if numerical_scaling not in ["standard", "minmax", "robustScaler", "none"]:
-            raise ValueError("Invalid numerical scaling method. Choose 'standard', 'minmax' or 'none'.")
+            raise ValueError("Invalid numerical scaling method. Choose 'standard', 'minmax', 'robustScaler' or 'none'.")
 
-        self.target_column = target_column
         self.forced_dropped_columns = set(forced_dropped_columns)
         self.too_many_lost_values_threshold = too_many_lost_values_threshold
         self.too_many_categorical_value_threshold = too_many_categorical_value_threshold
         self.numerical_scaling = numerical_scaling
+        self.too_many_lost_values_bool_columns = too_many_lost_values_bool_columns # TODO Implement
         self.verbose = verbose
+
         self.columns_to_drop = set()
         self.means = {}
         self.modes = {}
@@ -28,10 +29,6 @@ class Preprocessor:
         self.numerical_scaling_params = {}
 
     ########################## AUXILIARY FUNCTIONS ##########################
-
-    def __check_for_target_column(self, df: pd.DataFrame) -> None:
-        if self.target_column not in df.columns:
-            raise ValueError(f"Target column '{self.target_column}' not found in the DataFrame.")
 
     def __check_for_too_many_lost_values(self, df: pd.DataFrame, column: str) -> bool:
         result = df[column].isnull().sum() / df.shape[0] > self.too_many_lost_values_threshold
@@ -61,12 +58,7 @@ class Preprocessor:
 
     def fit(self, df: pd.DataFrame) -> None:
 
-        self.__check_for_target_column(df)
-
         for column in df.columns:
-
-            if column == self.target_column:
-                continue
 
             if (
                     self.__check_for_too_many_lost_values(df, column) or
