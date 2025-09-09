@@ -2,6 +2,7 @@ from BasicAutoML.src.main import TFM_AutoML
 from BasicAutoML.src.config import AutoMLConfig
 from BasicAutoML.src.data_loader import DataLoader
 from sklearn.metrics import classification_report
+import logging
 
 def test_automl_pipeline():
     dataset_name = "adult"
@@ -22,7 +23,7 @@ def test_automl_pipeline():
 
     automl = TFM_AutoML(config)
 
-    print("Entrenando el modelo...")
+    print("Training...")
     automl.fit(X, y)
 
     print("Evaluando el modelo...")
