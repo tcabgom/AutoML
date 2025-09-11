@@ -63,15 +63,20 @@ class TFM_AutoML:
         # Run search
         self.searcher.fit(X_train_prep, y_train)
 
-        # Retrieve best
         self.best_model = self.searcher.best_model
         self.best_score = self.searcher.best_score
 
-        # Refit best model on full training
-        self.best_model.fit(
-            np.vstack((X_train_prep, X_test_prep)),
-            pd.concat([y_train, y_test])
-        )
+        """
+        # Retrieve best configuration
+        best_params = self.searcher.best_params
+        best_estimator_class = type(self.searcher.best_model)
+
+        # Fit model with best configuration
+        self.best_model = best_estimator_class(**best_params)
+        self.best_model.fit(X_train_prep, y_train)
+        """
+
+
 
     def predict(self, X: pd.DataFrame) -> np.ndarray:
         """
