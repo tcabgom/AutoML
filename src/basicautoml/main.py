@@ -48,9 +48,9 @@ class TFM_AutoML:
 
         # Initialize searcher
         if self.config.search_type == 'bayesian':
-            from src.basicautoml.searches.bayesian_optimization import BayesianSearchAutoML as Searcher
+            from .searches.bayesian_optimization import BayesianSearchAutoML as Searcher
         elif self.config.search_type == 'random':
-            from src.basicautoml.searches.random_search import RandomSearchAutoML as Searcher
+            from .searches.random_search import RandomSearchAutoML as Searcher
         else:
             raise ValueError(f"Unsupported search type: {self.config.search_type}")
 
