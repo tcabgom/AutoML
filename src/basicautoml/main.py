@@ -19,7 +19,7 @@ class TFM_AutoML:
         random.seed(config.random_state)
 
         # Create preprocessor
-        from src.basicautoml.preprocessing import Preprocessor
+        from .preprocessing import Preprocessor
         self.preprocessor = Preprocessor(**config.preprocessor_params)
 
         # Placeholders for models and data
