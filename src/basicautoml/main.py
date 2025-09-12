@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.metrics import get_scorer
 from sklearn.model_selection import train_test_split
 
-from src.basicautoml.config import AutoMLConfig
+from .config import AutoMLConfig
 
 
 class TFM_AutoML:
