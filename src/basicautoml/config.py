@@ -1,6 +1,6 @@
 # src/basicautoml/config.py
+from .algorithms.classification import DecisionTree, RandomForest, GradientBoosting, ExtraTree
 from dataclasses import dataclass, field
-from algorithms.classification import DecisionTree, RandomForest, GradientBoosting, ExtraTree
 
 @dataclass
 class AutoMLConfig:
