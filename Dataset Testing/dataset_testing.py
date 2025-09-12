@@ -4,8 +4,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 
-from BasicAutoML.src.data_loader import DataLoader
-from BasicAutoML.src.preprocessing import Preprocessor
+from src.basicautoml.data_loader import DataLoader
+from src.basicautoml.preprocessing import Preprocessor
 
 DATASET_NAMES = ["adult", "titanic", "wine", "vehicle", "segment", "mushroom", "iris", "heart-statlog"]
 

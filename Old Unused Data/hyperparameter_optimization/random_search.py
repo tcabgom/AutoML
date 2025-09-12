@@ -1,6 +1,6 @@
 import random
 from tqdm import tqdm
-from BasicAutoML.algorithms.classification import decision_tree_classifier, random_forest_classifier, k_neighbors_classifier
+from src.algorithms.classification import decision_tree_classifier, random_forest_classifier, k_neighbors_classifier
 
 
 ITERATIONS = 750

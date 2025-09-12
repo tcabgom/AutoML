@@ -1,4 +1,4 @@
-from BasicAutoML.algorithms.classification import decision_tree_classifier, random_forest_classifier, k_neighbors_classifier
+from src.algorithms.classification import decision_tree_classifier, random_forest_classifier, k_neighbors_classifier
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import Matern
 import numpy as np

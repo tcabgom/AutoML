@@ -1,6 +1,6 @@
-from BasicAutoML.src.main import TFM_AutoML
-from BasicAutoML.src.config import AutoMLConfig
-from BasicAutoML.src.data_loader import DataLoader
+from src.basicautoml.main import TFM_AutoML
+from src.basicautoml.config import AutoMLConfig
+from src.basicautoml.data_loader import DataLoader
 from sklearn.metrics import classification_report
 import logging
 

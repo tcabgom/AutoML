@@ -1,3 +1,5 @@
+# src/basicautoml/main.py
+
 import numpy as np
 import random
 
@@ -5,7 +7,7 @@ import pandas as pd
 from sklearn.metrics import get_scorer
 from sklearn.model_selection import train_test_split
 
-from BasicAutoML.src.config import AutoMLConfig
+from src.basicautoml.config import AutoMLConfig
 
 
 class TFM_AutoML:
@@ -17,7 +19,7 @@ class TFM_AutoML:
         random.seed(config.random_state)
 
         # Create preprocessor
-        from BasicAutoML.src.preprocessing import Preprocessor
+        from src.basicautoml.preprocessing import Preprocessor
         self.preprocessor = Preprocessor(**config.preprocessor_params)
 
         # Placeholders for models and data
@@ -28,6 +30,7 @@ class TFM_AutoML:
         self.y_test = None
 
     def fit(self, X: pd.DataFrame, y: pd.Series) -> None:
+        # TODO Add option to skip train-test split
         """
         Fit the entire AutoML pipeline: split data, preprocess, search, select best model.
         """
@@ -45,9 +48,9 @@ class TFM_AutoML:
 
         # Initialize searcher
         if self.config.search_type == 'bayesian':
-            from BasicAutoML.src.searches.bayesian_optimization import BayesianSearchAutoML as Searcher
+            from src.basicautoml.searches.bayesian_optimization import BayesianSearchAutoML as Searcher
         elif self.config.search_type == 'random':
-            from BasicAutoML.src.searches.random_search import RandomSearchAutoML as Searcher
+            from src.basicautoml.searches.random_search import RandomSearchAutoML as Searcher
         else:
             raise ValueError(f"Unsupported search type: {self.config.search_type}")
 
