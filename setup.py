@@ -1,9 +1,10 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='src',
+    name='basicautoml',
     version='0.1.0',
-    packages=find_packages(where='basicautoml'),
+    packages=find_packages(where='src'),
+    package_dir={"": "src"},
     install_requires=[
         'scikit-learn>=1.0',
         'numpy>=1.21',
