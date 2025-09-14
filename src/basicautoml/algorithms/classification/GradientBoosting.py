@@ -11,7 +11,7 @@ class Algorithm_XGBC(parent_algorithm.ParentAlgorithm):
 
     def get_algorithm_params(self) -> dict:
         return {
-            "loss": ["log_loss", "exponential"],
+            "loss": ["log_loss"],#, "exponential"],
             "learning_rate": (0.01, 0.3),
             "n_estimators": (50, 200),
             "subsample": (0.5, 1.0),
