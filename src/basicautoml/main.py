@@ -8,6 +8,7 @@ from sklearn.metrics import get_scorer
 from sklearn.model_selection import train_test_split
 
 from .config import AutoMLConfig
+from .utils.dataset_size import clasify_dataset_size
 
 
 class TFM_AutoML:
@@ -34,6 +35,9 @@ class TFM_AutoML:
         """
         Fit the entire AutoML pipeline: split data, preprocess, search, select best model.
         """
+
+        dataset_size = clasify_dataset_size(X)
+
         # Split data
         X_train, X_test, y_train, y_test = train_test_split(
             X, y,
@@ -61,7 +65,8 @@ class TFM_AutoML:
             scoring=self.config.scoring,
             cv=self.config.cv,
             verbose=self.config.verbose,
-            random_state=self.config.random_state
+            random_state=self.config.random_state,
+            dataset_size=dataset_size
         )
         # Run search
         self.searcher.fit(X_train_prep, y_train)

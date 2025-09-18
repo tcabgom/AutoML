@@ -15,7 +15,8 @@ class RandomSearchAutoML:
                  scoring: str = "roc_auc",
                  cv: int = 5,
                  verbose: bool = False,
-                 random_state=None):
+                 random_state=None,
+                 dataset_size: str = "medium"):
 
         self.algorithms = algorithms
         self.n_trials = n_trials
@@ -24,6 +25,7 @@ class RandomSearchAutoML:
         self.verbose = verbose
         self.cv = cv
         self.random_state = random_state
+        self.dataset_size = dataset_size
 
         self.best_score = -np.inf
         self.best_params = None
@@ -54,7 +56,7 @@ class RandomSearchAutoML:
         # Chooses random model
         algo_obj = random.choice(self.algorithms)
         model_class = algo_obj.get_algorithm_class()
-        param_space = algo_obj.get_algorithm_params()
+        param_space = algo_obj.get_algorithm_params(size=self.dataset_size)
 
         # Choose random params
         params = {}
