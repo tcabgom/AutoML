@@ -9,8 +9,8 @@ class Preprocessor:
                  # If the percentage of unique values in a categorical column is greater than this threshold, the column will be removed
                  too_many_categorical_value_threshold: float = 0.05,
                  numerical_scaling: str = "minmax",  # "standard", "min_max", "robustScaler", "none"
-                 too_many_lost_values_bool_columns: bool = False,
-                 verbose: bool = False):
+                 too_many_lost_values_bool_columns: bool = True,
+                 verbose: bool = True):
 
         if numerical_scaling not in ["standard", "minmax", "robustScaler", "none"]:
             raise ValueError("Invalid numerical scaling method. Choose 'standard', 'minmax', 'robustScaler' or 'none'.")
@@ -23,6 +23,7 @@ class Preprocessor:
         self.verbose = verbose
 
         self.columns_to_drop = set()
+        self.columns_to_replace_bool_lost_values = set()
         self.means = {}
         self.modes = {}
         self.encodings = {}
@@ -65,7 +66,15 @@ class Preprocessor:
                     self.__check_for_one_unique_value(df, column) or
                     self.__check_for_column_in_forced_dropped_columns(column)
             ):
-                self.columns_to_drop.add(column)
+                if (
+                        self.too_many_lost_values_bool_columns and
+                        self.__check_for_too_many_lost_values(df, column)
+                ):
+                    self.columns_to_replace_bool_lost_values.add(column)
+                    if self.verbose:
+                        print(f"    * A copy of the column '{column+'_missing'}' will be created to indicate missing values.")
+                else:
+                    self.columns_to_drop.add(column)
                 continue
 
             if pd.api.types.is_numeric_dtype(df[column]):
@@ -101,6 +110,12 @@ class Preprocessor:
 
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+
+        if self.too_many_lost_values_bool_columns:
+            for col in self.columns_to_replace_bool_lost_values:
+                if col in df.columns:
+                    df[col] = df[col].isnull().astype(int)
+                    df.rename(columns={col: f"{col}_missing"}, inplace=True)
 
         # Remove dropped columns
         df = df.drop(columns=self.columns_to_drop, errors='ignore').copy()

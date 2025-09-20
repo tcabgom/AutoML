@@ -6,10 +6,13 @@ import logging
 
 def test_automl_pipeline():
     # SMALL:
-    # MEDIUM: kc2, credit-g
+    # MEDIUM: kc2, credit-g, titanic
     # LARGE: adult, bank-marketing, PhishingWebsites
     # XLARGE: covertype
-    dataset_name = "kc2"
+
+    # El dataset titanic es el GOAT para sustituir columnas con muchos datos por booleanos
+
+    dataset_name = "titanic"
     loader = DataLoader(dataset_name)
     X, y = loader.load_data()
 

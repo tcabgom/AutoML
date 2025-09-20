@@ -74,6 +74,7 @@ class TFM_AutoML:
         self.best_model = self.searcher.best_model
         self.best_score = self.searcher.best_score
 
+        # TODO Implement
         """
         # Retrieve best configuration
         best_params = self.searcher.best_params
