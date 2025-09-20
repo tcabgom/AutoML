@@ -10,7 +10,7 @@ class Algorithm_DTC (parent_algorithm.ParentAlgorithm):
         return DecisionTreeClassifier
 
     def get_algorithm_params(self, size: str = "medium") -> dict:
-        print(size)
+
         if size == "small":
             return {
                 "criterion": ["gini", "entropy"],

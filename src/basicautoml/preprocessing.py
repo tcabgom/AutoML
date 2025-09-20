@@ -72,7 +72,7 @@ class Preprocessor:
                 ):
                     self.columns_to_replace_bool_lost_values.add(column)
                     if self.verbose:
-                        print(f"    * A copy of the column '{column+'_missing'}' will be created to indicate missing values.")
+                        print(f"    * A copy of the column '{column+'_missing'}' will be created to indicate the rows with missing values.")
                 else:
                     self.columns_to_drop.add(column)
                 continue
