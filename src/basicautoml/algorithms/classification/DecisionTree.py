@@ -31,7 +31,7 @@ class Algorithm_DTC (parent_algorithm.ParentAlgorithm):
             return {
                 "criterion": ["gini", "entropy", "log_loss"],
                 "splitter": ["best", "random"],
-                "max_depth": (1, 40),
+                "max_depth": (5, 40),
                 "min_samples_split": (2, 20),
                 "min_samples_leaf": (1, 10),
                 "max_features": [None, "sqrt", "log2"],
@@ -43,7 +43,7 @@ class Algorithm_DTC (parent_algorithm.ParentAlgorithm):
             return {
                 "criterion": ["gini", "entropy", "log_loss"],
                 "splitter": ["best", "random"],
-                "max_depth": (1, 60),
+                "max_depth": (5, 60),
                 "min_samples_split": (2, 50),
                 "min_samples_leaf": (1, 20),
                 "max_features": [None, "sqrt", "log2"],

@@ -9,7 +9,7 @@ class Preprocessor:
                  # If the percentage of unique values in a categorical column is greater than this threshold, the column will be removed
                  too_many_categorical_value_threshold: float = 0.05,
                  numerical_scaling: str = "minmax",  # "standard", "min_max", "robustScaler", "none"
-                 too_many_lost_values_bool_columns: bool = True,
+                 too_many_lost_values_bool_columns: bool = False,
                  verbose: bool = True):
 
         if numerical_scaling not in ["standard", "minmax", "robustScaler", "none"]:
@@ -19,7 +19,7 @@ class Preprocessor:
         self.too_many_lost_values_threshold = too_many_lost_values_threshold
         self.too_many_categorical_value_threshold = too_many_categorical_value_threshold
         self.numerical_scaling = numerical_scaling
-        self.too_many_lost_values_bool_columns = too_many_lost_values_bool_columns # TODO Implement
+        self.too_many_lost_values_bool_columns = too_many_lost_values_bool_columns
         self.verbose = verbose
 
         self.columns_to_drop = set()
@@ -62,14 +62,14 @@ class Preprocessor:
         for column in df.columns:
 
             if (
-                    self.__check_for_too_many_lost_values(df, column) or
-                    self.__check_for_one_unique_value(df, column) or
-                    self.__check_for_column_in_forced_dropped_columns(column)
+                    self.__check_for_column_in_forced_dropped_columns(column) or
+                    self.__check_for_one_unique_value(df, column)
             ):
-                if (
-                        self.too_many_lost_values_bool_columns and
-                        self.__check_for_too_many_lost_values(df, column)
-                ):
+                self.columns_to_drop.add(column)
+                continue
+
+            if self.__check_for_too_many_lost_values(df, column):
+                if self.too_many_lost_values_bool_columns:
                     self.columns_to_replace_bool_lost_values.add(column)
                     if self.verbose:
                         print(f"    * A copy of the column '{column+'_missing'}' will be created to indicate the rows with missing values.")

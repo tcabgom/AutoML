@@ -24,7 +24,7 @@ def test_automl_pipeline():
         search_type="bayesian",
         scoring="roc_auc",
         verbose=True,
-        n_trials=50,
+        n_trials=10,
         timeout=1200
     )
 

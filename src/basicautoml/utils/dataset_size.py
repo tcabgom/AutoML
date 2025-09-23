@@ -1,6 +1,7 @@
 import pandas as pd
 
 def clasify_dataset_size(X: pd.DataFrame) -> str:
+
     n_samples, n_features = X.shape
     size_score = n_samples * n_features
 
@@ -13,5 +14,5 @@ def clasify_dataset_size(X: pd.DataFrame) -> str:
     else:
         selected_size = "xlarge"
 
-    print(f"Dataset classified as '{selected_size} with size score {size_score}.'")
+    print(f"Dataset classified as '{selected_size} with size score {size_score} ({n_samples} samples, {n_features} features).")
     return selected_size
