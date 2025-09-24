@@ -11,9 +11,25 @@ class Preprocessor:
                  numerical_scaling: str = "minmax",  # "standard", "min_max", "robustScaler", "none"
                  too_many_lost_values_bool_columns: bool = False,
                  verbose: bool = True):
+        """
+        Preprocess the dataframe by handling missing values, encoding categorical variables, and scaling numerical features.
+
+        :param forced_dropped_columns: List of columns to be forcibly dropped.
+        :param too_many_lost_values_threshold: If the percentage of lost values in a column is greater than this threshold, the column will be removed.
+        :param too_many_categorical_value_threshold: If the percentage of unique values in a categorical column is greater than this threshold, the column will be removed.
+        :param numerical_scaling: The method to scale numerical features. Options are "standard", "minmax", "robustScaler", or "none".
+        :param too_many_lost_values_bool_columns: Whether to replace columns with too many lost values with boolean indicators.
+        :param verbose: Whether to print detailed logs during preprocessing.
+        """
 
         if numerical_scaling not in ["standard", "minmax", "robustScaler", "none"]:
             raise ValueError("Invalid numerical scaling method. Choose 'standard', 'minmax', 'robustScaler' or 'none'.")
+
+        if not (0.0 <= too_many_lost_values_threshold <= 1.0):
+            raise ValueError("too_many_lost_values_threshold must be between 0 and 1.")
+
+        if not (0.0 <= too_many_categorical_value_threshold <= 1.0):
+            raise ValueError("too_many_categorical_value_threshold must be between 0 and 1.")
 
         self.forced_dropped_columns = set(forced_dropped_columns)
         self.too_many_lost_values_threshold = too_many_lost_values_threshold

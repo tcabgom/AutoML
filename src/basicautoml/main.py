@@ -20,8 +20,11 @@ class TFM_AutoML:
         random.seed(config.random_state)
 
         # Create preprocessor
+        # TODO Maybe allow to skip preprocessing?
         from .preprocessing import Preprocessor
         self.preprocessor = Preprocessor(**config.preprocessor_params)
+
+        self.feature_selector = None
 
         # Placeholders for models and data
         self.searcher = None
@@ -47,8 +50,9 @@ class TFM_AutoML:
         self.X_test, self.y_test = X_test, y_test
 
         # Preprocess
-        X_train_prep = self.preprocessor.fit_transform(X_train)
-        X_test_prep = self.preprocessor.transform(X_test)
+        if self.preprocessor is not None:
+            X_train_prep = self.preprocessor.fit_transform(X_train)
+            X_test_prep = self.preprocessor.transform(X_test)
 
         # Initialize searcher
         if self.config.search_type == 'bayesian':
@@ -74,7 +78,7 @@ class TFM_AutoML:
         self.best_model = self.searcher.best_model
         self.best_score = self.searcher.best_score
 
-        # TODO Implement
+        # TODO Implement final training with best model
         """
         # Retrieve best configuration
         best_params = self.searcher.best_params
@@ -93,7 +97,9 @@ class TFM_AutoML:
         """
         if self.best_model is None:
             raise RuntimeError("Model not trained. Call fit() first.")
-        X_prep = self.preprocessor.transform(X)
+
+        if self.preprocessor is not None:
+            X_prep = self.preprocessor.transform(X)
         return self.best_model.predict(X_prep)
 
     def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
@@ -102,7 +108,9 @@ class TFM_AutoML:
         """
         if self.best_model is None:
             raise RuntimeError("Model not trained. Call fit() first.")
-        X_prep = self.preprocessor.transform(X)
+
+        if self.preprocessor is not None:
+            X_prep = self.preprocessor.transform(X)
         if hasattr(self.best_model, 'predict_proba'):
             return self.best_model.predict_proba(X_prep)
         else:
@@ -114,6 +122,8 @@ class TFM_AutoML:
         """
         if self.best_model is None:
             raise RuntimeError("Model not trained. Call fit() first.")
-        X_prep = self.preprocessor.transform(X)
+
+        if self.preprocessor is not None:
+            X_prep = self.preprocessor.transform(X)
         scorer = get_scorer(self.config.scoring)
         return scorer(self.best_model, X_prep, y)

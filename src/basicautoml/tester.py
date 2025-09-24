@@ -5,14 +5,22 @@ from sklearn.metrics import classification_report
 import logging
 
 def test_automl_pipeline():
+
+    ##### BINARY CLASSIFICATION:
+    # TINY:
+    # SMALL: kc2, credit-g, titanic (WARNING: Data leaking)
+    # MEDIUM: adult, bank-marketing, PhishingWebsites
+    # LARGE:
+    # XLARGE:
+
+    ##### MULTI-CLASS CLASSIFICATION:
+    # TINY: iris, wine
     # SMALL:
-    # MEDIUM: kc2, credit-g, titanic
-    # LARGE: adult, bank-marketing, PhishingWebsites
-    # XLARGE: covertype
+    # MEDIUM:
+    # LARGE: covertype
+    # XLARGE:
 
-    # El dataset titanic es el GOAT para sustituir columnas con muchos datos por booleanos
-
-    dataset_name = "titanic"
+    dataset_name = "titanic" #"APSFailure"
     loader = DataLoader(dataset_name)
     X, y = loader.load_data()
 
