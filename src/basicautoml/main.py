@@ -49,10 +49,14 @@ class TFM_AutoML:
         )
         self.X_test, self.y_test = X_test, y_test
 
+        #X_train.to_csv("before_preprocessed_data.csv", index=True)
+
         # Preprocess
         if self.preprocessor is not None:
             X_train_prep = self.preprocessor.fit_transform(X_train)
             X_test_prep = self.preprocessor.transform(X_test)
+
+        #X_train_prep.to_csv("preprocessed_data.csv", index=True)
 
         # Initialize searcher
         if self.config.search_type == 'bayesian':
