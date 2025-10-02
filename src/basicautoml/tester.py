@@ -20,7 +20,7 @@ def test_automl_pipeline():
     # LARGE: covertype
     # XLARGE:
 
-    dataset_name = "adult" #"APSFailure"
+    dataset_name = "titanic" #"APSFailure"
     loader = DataLoader(dataset_name)
     X, y = loader.load_data()
 

@@ -26,7 +26,7 @@ class Preprocessor:
         :param too_many_lost_values_bool_columns: Whether to replace columns with too many lost values with boolean indicators.
         :param categorical_encoding: The method to encode categorical variables. Options are "auto", "ordinal" or "onehot".
         :param max_one_hot_unique: Maximum number of unique values in a categorical column to apply one-hot encoding when categorical_encoding is set to "auto".
-        :param rare_category_threshold: Categories with a frequency lower than this threshold will be grouped into a single 'rare' category. Can be disabled by setting to 0.
+        :param rare_category_threshold: Categories with a frequency lower than this threshold will be grouped into a single 'rare' category when using one-hot encoding. Can be disabled by setting to 0.
         :param verbose: Whether to print detailed logs during preprocessing.
         """
 
@@ -189,10 +189,10 @@ class Preprocessor:
 
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        print(self.onehot_columns)
-        print(self.categorical_strategy)
-        print(self.encodings)
-        print("\n\n\n")
+        #print(self.onehot_columns) # TODO Remove
+        #print(self.categorical_strategy)
+        #print(self.encodings)
+        #print("\n\n\n")
         if self.too_many_lost_values_bool_columns:
             for col in self.columns_to_replace_bool_lost_values:
                 if col in df.columns:

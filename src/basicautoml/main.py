@@ -42,19 +42,22 @@ class TFM_AutoML:
         dataset_size = clasify_dataset_size(X)
 
         # Split data
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y,
-            test_size=self.config.test_size,
-            random_state=self.config.random_state
-        )
-        self.X_test, self.y_test = X_test, y_test
+        if self.config.test_size != 0:
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y,
+                test_size=self.config.test_size,
+                random_state=self.config.random_state
+            )
+            self.X_test, self.y_test = X_test, y_test
+        else:
+            X_train, y_train = X, y
+            self.X_test, self.y_test = None, None
 
         #X_train.to_csv("before_preprocessed_data.csv", index=True)
 
         # Preprocess
         if self.preprocessor is not None:
             X_train_prep = self.preprocessor.fit_transform(X_train)
-            X_test_prep = self.preprocessor.transform(X_test)
 
         #X_train_prep.to_csv("preprocessed_data.csv", index=True)
 
