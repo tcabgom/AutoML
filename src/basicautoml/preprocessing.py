@@ -31,6 +31,7 @@ class Preprocessor:
         """
 
         warnings.filterwarnings("ignore", message="Downcasting object dtype arrays")
+        warnings.filterwarnings("ignore", category=pd.errors.SettingWithCopyWarning)
 
         if numerical_scaling not in ["standard", "minmax", "robustScaler", "none"]:
             raise ValueError("Invalid numerical scaling method. Choose 'standard', 'minmax', 'robustScaler' or 'none'.")

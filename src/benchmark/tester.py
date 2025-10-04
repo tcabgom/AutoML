@@ -1,4 +1,5 @@
 
+from src.benchmark.benchmark import run
 from src.benchmark.utils.data_loader import load_benchmark_suite, load_task_dataset
 
 
@@ -14,4 +15,4 @@ def test():
         print(len(X_train), len(X_test))
 
 if __name__ == "__main__":
-    test()
+    run()
