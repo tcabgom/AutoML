@@ -2,9 +2,9 @@ from src.basicautoml.config import AutoMLConfig
 from src.basicautoml.main import TFM_AutoML
 from src.benchmark.utils.data_storer import store_data
 from utils.data_loader import load_benchmark_suite, load_task_dataset
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, log_loss
 from datetime import datetime
 import time
-import random
 import numpy as np
 
 def run():
@@ -12,7 +12,6 @@ def run():
 
     for task_id in suite.tasks:
         # Obtener dataset
-        task_id = 359983
         x, y, dataset, train_indices, test_indices = load_task_dataset(task_id)
 
         if len(np.unique(y)) > 2:
@@ -31,17 +30,40 @@ def run():
                 search_type="bayesian",
 
                 n_trials=1000,
-                timeout=3600,
+                timeout=3600/2,
                 scoring="roc_auc",
                 cv=5,
                 verbose=True,
             )
 
             automl = TFM_AutoML(config)
+
+            t0_train = time.time()
             automl.fit(X_train, y_train)
+            training_duration = int(time.time() - t0_train)
 
             # Evaluar y almacenar los resultados
+            t0_pred = time.time()
+            y_pred = automl.predict(X_test)
+            y_proba = automl.predict_proba(X_test)
             score = automl.score(X_test, y_test)
+
+            try:
+                acc = accuracy_score(y_test, y_pred)
+            except Exception:
+                acc = None
+            try:
+                balacc = balanced_accuracy_score(y_test, y_pred)
+            except Exception:
+                balacc = None
+            try:
+                logloss = log_loss(y_test, y_proba)
+            except Exception:
+                logloss = None
+
+            predict_duration = int(time.time() - t0_pred)
+
+
 
             new_row = {}
             new_row["id"] = f"openml.org/t/{task_id}"
@@ -57,16 +79,17 @@ def run():
             new_row["params"] = str(automl.best_params)
             new_row["app_version"] = None
             new_row["utc"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-            new_row["duration"] = None
-            new_row["training_duration"] = None
-            new_row["predict_duration"] = None
+            new_row["duration"] = training_duration + predict_duration
+            new_row["training_duration"] = training_duration
+            new_row["predict_duration"] = predict_duration
             new_row["models_count"] = None
             new_row["seed"] = config.random_state
             new_row["info"] = None
-            new_row["acc"] = None
-            new_row["balacc"] = None
-            new_row["logloss"] = None
+            new_row["acc"] = acc
+            new_row["balacc"] = balacc
+            new_row["logloss"] = logloss
             new_row["models_ensemble_count"] = None
-            new_row["auc"] = None
+            new_row["auc"] = score if len(np.unique(y)) == 2 else None
 
             store_data("results.csv", new_row)
+            print(f"Result stored for dataset {dataset.name}, fold {fold}")

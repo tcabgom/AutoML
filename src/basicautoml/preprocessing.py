@@ -98,7 +98,7 @@ class Preprocessor:
 
     def __decide_categorical_encoding(self, df: pd.DataFrame, column: str) -> str:
         if self.categorical_encoding == "auto":
-            if df[column].nunique() <= self.max_one_hot_unique:
+            if 2 < df[column].nunique() <= self.max_one_hot_unique:
                 return "onehot"
             else:
                 return "ordinal"
