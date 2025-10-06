@@ -30,6 +30,7 @@ class TFM_AutoML:
         self.searcher = None
         self.best_model = None
         self.best_score = None
+        self.best_params = None
         self.X_test = None
         self.y_test = None
 
@@ -84,6 +85,7 @@ class TFM_AutoML:
 
         self.best_model = self.searcher.best_model
         self.best_score = self.searcher.best_score
+        self.best_params = self.searcher.best_params
 
         # TODO Implement final training with best model
         """

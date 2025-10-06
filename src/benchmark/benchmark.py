@@ -54,7 +54,7 @@ def run():
             new_row["metric"] = config.scoring
             new_row["mode"] = None
             new_row["version"] = None
-            new_row["params"] = None
+            new_row["params"] = str(automl.best_params)
             new_row["app_version"] = None
             new_row["utc"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
             new_row["duration"] = None

@@ -15,7 +15,7 @@ class AutoMLConfig:
         DecisionTree.Algorithm_DTC(),
         RandomForest.Algorithm_RFC(),
         ExtraTree.Algorithm_ETC(),
-        GradientBoosting.Algorithm_XGBC()
+        GradientBoosting.Algorithm_GBC()
     ])
     n_trials: int = 120
     timeout: float = 60

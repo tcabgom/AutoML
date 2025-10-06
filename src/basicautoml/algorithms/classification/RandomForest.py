@@ -11,59 +11,53 @@ class Algorithm_RFC(parent_algorithm.ParentAlgorithm):
 
     def get_algorithm_params(self, size: str = "medium") -> dict:
 
-        if size == "small":
+        if size == "tiny":
             return {
-                "n_estimators": (10, 40),
-                "criterion": ["gini", "entropy"],
-                "max_depth": (2, 15),
-                "min_samples_split": (2, 5),
-                "min_samples_leaf": (1, 5),
-                "max_features": [None,"sqrt"],
-                "bootstrap": [True],
-                "class_weight": [None, "balanced"],
+                "criterion": ["gini", "entropy", "log_loss"],   # Funcion para medir la calidad de una division
+                "class_weight": ["balanced"],                   # Manejo de clases desbalanceadas
+                "max_depth": (2, 10),                           # Profundidad maxima del arbol
+                "min_samples_split": (2, 5),                    # Minimo de muestras para dividir un nodo
+                "min_samples_leaf": (1, 5),                     # Minimo de muestras en un nodo hoja
+                "n_estimators": (5, 20),                        # Numero de arboles en el bosque
             }
-
+        elif size == "small":
+            return {
+                "criterion": ["gini", "entropy", "log_loss"],
+                "class_weight": ["balanced"],
+                "max_depth": (3, 15),
+                "min_samples_split": (2, 10),
+                "min_samples_leaf": (1, 5),
+                "n_estimators": (10, 40),
+            }
         elif size == "medium":
             return {
-                "n_estimators": (40, 100),
                 "criterion": ["gini", "entropy", "log_loss"],
+                "class_weight": ["balanced"],
                 "max_depth": (3, 25),
-                "min_samples_split": (2, 10),
+                "min_samples_split": (2, 20),
                 "min_samples_leaf": (1, 10),
-                "max_features": ["sqrt", "log2", None],
-                "bootstrap": [True, False],
-                "class_weight": [None, "balanced"],
+                "n_estimators": (20, 80),
             }
 
         elif size == "large":
             return {
-                "n_estimators": (75, 300),
                 "criterion": ["gini", "entropy", "log_loss"],
-                "max_depth": (5, 50),
-                "min_samples_split": (2, 20),
+                "class_weight": ["balanced"],
+                "max_depth": (5, 40),
+                "min_samples_split": (2, 30),
                 "min_samples_leaf": (1, 15),
-                "max_features": [None, "sqrt", "log2"],
-                "max_leaf_nodes": (2, 200),
-                "bootstrap": [True, False],
-                "class_weight": [None, "balanced"],
-                "ccp_alpha": (0.0, 0.05),
+                "n_estimators": (40, 160),
             }
 
         elif size == "xlarge":
             return {
-                "n_estimators": (200, 500),
                 "criterion": ["gini", "entropy", "log_loss"],
-                "max_depth": (5, 80),
+                "class_weight": ["balanced"],
+                "max_depth": (10, 60),
                 "min_samples_split": (2, 50),
                 "min_samples_leaf": (1, 20),
-                "min_weight_fraction_leaf": (0.0, 0.1),
-                "max_features": [None, "sqrt", "log2"],
-                "max_leaf_nodes": (2, 300),
-                "bootstrap": [True],
-                "class_weight": [None, "balanced"],
-                "ccp_alpha": (0.0, 0.1),
-                "max_samples": (0.5, 1.0),
+                "n_estimators": (80, 320),
             }
 
         else:
-            raise ValueError(f"Unknown size '{size}'. Use 'small', 'medium', 'large', or 'xlarge'.")
+            raise ValueError(f"Unknown size '{size}'. Use 'tiny', 'small', 'medium', 'large', or 'xlarge'.")
