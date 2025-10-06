@@ -12,6 +12,7 @@ def run():
 
     for task_id in suite.tasks:
         # Obtener dataset
+        task_id = 7592
         x, y, dataset, train_indices, test_indices = load_task_dataset(task_id)
 
         if len(np.unique(y)) > 2:
@@ -30,7 +31,7 @@ def run():
                 search_type="bayesian",
 
                 n_trials=1000,
-                timeout=3600/2,
+                timeout=60,#3600,
                 scoring="roc_auc",
                 cv=5,
                 verbose=True,
