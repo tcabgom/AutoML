@@ -42,7 +42,7 @@ class RandomSearchAutoML:
         optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 
-    def __objective(self, trial: optuna.Trial, x_data: pd.DataFrame, y_data: pd.DataFrame) -> float:
+    def __objective(self, trial: optuna.Trial, x_data: pd.DataFrame, y_data: pd.Series) -> float:
         """
         Objective function for Optuna optimization.
 

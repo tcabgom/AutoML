@@ -1,5 +1,7 @@
 import pandas as pd
 import warnings
+from typing import Dict, Set
+from .utils.numeric_scaler import NumericScaler
 
 class Preprocessor:
     def __init__(self,
@@ -48,7 +50,7 @@ class Preprocessor:
         if not (0.0 <= rare_category_threshold <= 1.0):
             raise ValueError("rare_category_threshold must be between 0 and 1.")
 
-        self.forced_dropped_columns = set(forced_dropped_columns)
+        self.forced_dropped_columns: Set[str] = set(forced_dropped_columns)
         self.too_many_lost_values_threshold = too_many_lost_values_threshold
         self.too_many_categorical_value_threshold = too_many_categorical_value_threshold
         self.numerical_scaling = numerical_scaling
@@ -58,13 +60,14 @@ class Preprocessor:
         self.rare_category_threshold = rare_category_threshold
         self.verbose = verbose
 
-        self.columns_to_drop = set()
-        self.columns_to_replace_bool_lost_values = set()
+        self.columns_to_drop: Set[str] = set()
+        self.columns_to_replace_bool_lost_values: Set[str] = set()
 
-        self.means = {}
+        self.means: Dict[str, float] = {}
         self.numerical_scaling_params = {}
+        self.numeric_scaler = NumericScaler(method=numerical_scaling)
 
-        self.modes = {}
+        self.modes: Dict[str, str] = {}
         self.categorical_strategy = {}
         self.encodings = {}
         self.onehot_columns = {}
@@ -73,13 +76,15 @@ class Preprocessor:
     ########################## AUXILIARY FUNCTIONS ##########################
 
     def __check_for_too_many_lost_values(self, df: pd.DataFrame, column: str) -> bool:
+        if df.shape[0] == 0:
+            return False
         result = df[column].isnull().sum() / df.shape[0] > self.too_many_lost_values_threshold
         if self.verbose and result:
             print(f" - Column '{column}': Has too many lost values. It will be removed.")
         return result
 
     def __check_for_one_unique_value(self, df: pd.DataFrame, column: str) -> bool:
-        result = df[column].nunique() == 1
+        result = (len(df[column].dropna().unique()) <= 1)
         if self.verbose and result:
             print(f" - Column '{column}': Has only one unique value. It will be removed.")
         return result
@@ -91,7 +96,9 @@ class Preprocessor:
         return result
 
     def __check_for_too_many_categorical_values(self, df: pd.DataFrame, column: str) -> bool:
-        result = df[column].nunique() / df.shape[0] > self.too_many_categorical_value_threshold
+        if df.shape[0] == 0:
+            return False
+        result = df[column].dropna().nunique() / df.shape[0] > self.too_many_categorical_value_threshold
         if self.verbose and result:
             print(f" - Column '{column}': Has too many categorical values. It will be removed.")
         return result
@@ -111,7 +118,7 @@ class Preprocessor:
         mapping = {str(cat_val): idx for idx, cat_val in enumerate(cat.cat.categories)}
         self.encodings[column] = mapping
         if self.verbose:
-            print(f" - Column '{column}': Ordinal encoding created with {len(mapping)} unique values. Null values will be filled with '{self.modes[column]}'.")
+            print(f" - Column '{column}': Ordinal encoding created with {len(mapping)} unique values. ({df[column].isna().sum()} null values will be filled with '{self.modes[column]}').")
 
     def __fit_onehot_encoding(self, df: pd.DataFrame, column: str) -> None:
         if self.rare_category_threshold > 0:
@@ -124,7 +131,7 @@ class Preprocessor:
         self.onehot_columns[column] = [f"{column}__{str(cat)}" for cat in categories]
         self.encodings[column] = set(str(c) for c in categories)
         if self.verbose:
-            print(f" - Column '{column}': One-hot encoding created with {len(categories)} unique values. Null values will be filled with '{self.modes[column]}'.")
+            print(f" - Column '{column}': One-hot encoding created with {len(categories)} unique values. ({df[column].isna().sum()} null values will be filled with '{self.modes[column]}').")
 
 
     ########################## DATA PREPROCESSING FUNCTIONS ##########################
@@ -152,24 +159,20 @@ class Preprocessor:
             if pd.api.types.is_numeric_dtype(df[column]):
                 # NUMERICAL COLUMN
                 self.means[column] = df[column].mean()
-                if self.numerical_scaling == "standard":
-                    self.numerical_scaling_params[column] = {'mean': self.means[column], 'std': df[column].std()}
-                    if self.verbose:
-                        print(f" - Column '{column}': Numerical scaling set to standard. Mean: {self.means[column]}, Std: {df[column].std()}. Null values will be filled with {self.means[column]}.")
-                elif self.numerical_scaling == "minmax":
-                    self.numerical_scaling_params[column] = {'min': df[column].min(), 'max': df[column].max()}
-                    if self.verbose:
-                        print(f" - Column '{column}': Numerical scaling set to minmax. Min: {self.numerical_scaling_params[column]['min']}, Max: {self.numerical_scaling_params[column]['max']}. Null values will be filled with {self.means[column]}.")
-                elif self.numerical_scaling == "robustScaler":
-                    median_val = df[column].median()
-                    q1_val = df[column].quantile(0.25)
-                    q3_val = df[column].quantile(0.75)
-                    iqr = q3_val - q1_val
-                    self.numerical_scaling_params[column] = {'median': median_val, 'iqr': iqr}
-                    if self.verbose:
-                        print(f" - Column '{column}': Numerical scaling set to robustScaler. Median: {median_val}, IQR: {iqr}. Null values will be filled with {self.means[column]}.")
-                elif self.verbose:
-                    print(f" - Column '{column}': Numerical scaling set to none. No scaling will be applied. Null values will be filled with {self.means[column]}.")
+
+                scaler = NumericScaler(self.numerical_scaling)
+                params = scaler.fit_column(df[column])
+                self.numerical_scaling_params[column] = params
+
+                if self.verbose:
+                    if self.numerical_scaling == "standard":
+                        print(f" - Column '{column}': Numerical scaling set to standard. Mean: {params.get('mean')}, Std: {params.get('std')}. ({df[column].isna().sum()} null values will be filled with {self.means[column]}).")
+                    elif self.numerical_scaling == "minmax":
+                        print(f" - Column '{column}': Numerical scaling set to minmax. Min: {params.get('min')}, Max: {params.get('max')}. ({df[column].isna().sum()} null values will be filled with {self.means[column]}).")
+                    elif self.numerical_scaling == "robustScaler":
+                        print(f" - Column '{column}': Numerical scaling set to robustScaler. Median: {params.get('median')}, IQR: {params.get('iqr')}. ({df[column].isna().sum()} null values will be filled with {self.means[column]}).")
+                    else:
+                        print(f" - Column '{column}': Numerical scaling set to none. No scaling will be applied. ({df[column].isna().sum()} null values will be filled with {self.means[column]}).")
 
             else:
                 # CATEGORICAL COLUMN
@@ -201,33 +204,15 @@ class Preprocessor:
                     df.rename(columns={col: f"{col}_missing"}, inplace=True)
 
         # Remove dropped columns
-        df = df.drop(columns=self.columns_to_drop, errors='ignore').copy()
+        if len(self.columns_to_drop) > 0:
+            df = df.drop(columns=self.columns_to_drop, errors='ignore').copy()
 
         # Fill missing numerical values with means
         for col, val in self.means.items():
             if col in df.columns:
                 df[col] = df[col].fillna(val)
-                if self.numerical_scaling == 'minmax':
-                    min_val = self.numerical_scaling_params[col]['min']
-                    max_val = self.numerical_scaling_params[col]['max']
-                    if max_val != min_val:
-                        df[col] = (df[col] - min_val) / (max_val - min_val)
-                    else:
-                        df[col] = 0.0
-                elif self.numerical_scaling == 'standard':
-                    mean_val = self.numerical_scaling_params[col]['mean']
-                    std_val = self.numerical_scaling_params[col]['std']
-                    if std_val != 0:
-                        df[col] = (df[col] - mean_val) / std_val
-                    else:
-                        df[col] = 0.0
-                elif self.numerical_scaling == 'robustScaler':
-                    median_val = self.numerical_scaling_params[col]['median']
-                    iqr = self.numerical_scaling_params[col]['iqr']
-                    if iqr != 0: # TODO Check if this is the best approach
-                        df[col] = (df[col] - median_val) / iqr
-                    else:
-                        df[col] = 0.0
+                scaler_params = self.numerical_scaling_params.get(col)
+                df[col] = self.numeric_scaler.transform_column(df[col], scaler_params)
 
         # Fill missing categorical values with modes and apply encoding
         for col, mapping in self.modes.items():

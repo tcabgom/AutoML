@@ -41,7 +41,7 @@ def run():
 
             t0_train = time.time()
             automl.fit(X_train, y_train)
-            training_duration = int(time.time() - t0_train)
+            training_duration = int((time.time() - t0_train)*10)/10
 
             # Evaluar y almacenar los resultados
             t0_pred = time.time()
@@ -62,9 +62,7 @@ def run():
             except Exception:
                 logloss = None
 
-            predict_duration = int(time.time() - t0_pred)
-
-
+            predict_duration = int((time.time() - t0_pred)*10)/10
 
             new_row = {}
             new_row["id"] = f"openml.org/t/{task_id}"

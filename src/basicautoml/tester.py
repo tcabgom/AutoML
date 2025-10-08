@@ -27,7 +27,7 @@ def test_automl_pipeline():
     y = y.astype(str)
 
     config = AutoMLConfig(
-        test_size=0.0,
+        test_size=0.2,
         random_state=42,
         search_type="bayesian",
         scoring="roc_auc",
