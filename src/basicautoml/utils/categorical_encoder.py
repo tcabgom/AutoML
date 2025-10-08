@@ -37,7 +37,7 @@ class CategoricalEncoder:
             mapping = {str(cat): idx for idx, cat in enumerate(cats)}   # Crear mapeo categoria -> numero
             res['mapping'] = mapping                                    # Guardar mapeo en resultados
             if self.verbose:
-                print(f" - Column '{column_name}': Ordinal encoding with {len(mapping)} values. Nulls -> '{res['mode']}'")
+                print(f" - Column '{column_name}': Ordinal encoding created with {len(cats)} unique values. ({series.isna().sum()} null values will be filled with '{str(series.mode(dropna=True)[0])}').")
         else:                           # ONE-HOT ENCODING
             non_na = series.dropna()    # Eliminar NaNs para calcular frecuencias
             if len(non_na) == 0:
@@ -45,7 +45,7 @@ class CategoricalEncoder:
             else:
                 freqs = non_na.value_counts(normalize=True)                                 # Calcular frecuencias relativas
                 if self.rare_category_threshold > 0:                                        # Si se usa umbral para categorias raras
-                    top = freqs[freqs >= self.rare_category_threshold].index.toList()       # Filtrar categorias frecuentes
+                    top = freqs[freqs >= self.rare_category_threshold].index.to_list()       # Filtrar categorias frecuentes
                     unique_vals = top                                                       # Guardar categorias frecuentes
                     if len(unique_vals) < len(freqs):                                       # Si existen categorias raras
                         unique_vals.append("OTHER")                                         # Guardar nueva categoria "OTHER"
@@ -55,7 +55,7 @@ class CategoricalEncoder:
             res['onehot_columns'] = [f"{column_name}__{str(cat)}" for cat in unique_vals]   # Guardar nombres de columnas one-hot
 
             if self.verbose:
-                print(f" - Column '{column_name}': One-hot encoding with {len(unique_vals)} categories (Nulls -> '{res['mode']}').")
+                print(f" - Column '{column_name}': One-hot encoding created with {len(unique_vals)} unique values. ({series.isna().sum()} null values will be filled with '{str(series.mode(dropna=True)[0])}').")
 
         return res
 

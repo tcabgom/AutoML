@@ -1,6 +1,8 @@
 import pandas as pd
 import warnings
 from typing import Dict, Set
+
+from .utils.categorical_encoder import CategoricalEncoder
 from .utils.numeric_scaler import NumericScaler
 
 class Preprocessor:
@@ -67,10 +69,17 @@ class Preprocessor:
         self.numerical_scaling_params = {}
         self.numeric_scaler = NumericScaler(method=numerical_scaling)
 
-        self.modes: Dict[str, str] = {}
+        """self.modes: Dict[str, str] = {}
         self.categorical_strategy = {}
         self.encodings = {}
-        self.onehot_columns = {}
+        self.onehot_columns = {}"""
+        self.categorical_params: Dict[str, dict] = {}
+        self.categorical_encoder = CategoricalEncoder(
+            method=categorical_encoding,
+            max_one_hot_unique=max_one_hot_unique,
+            rare_category_threshold=rare_category_threshold,
+            verbose=verbose
+        )
 
 
     ########################## AUXILIARY FUNCTIONS ##########################
@@ -102,37 +111,6 @@ class Preprocessor:
         if self.verbose and result:
             print(f" - Column '{column}': Has too many categorical values. It will be removed.")
         return result
-
-    def __decide_categorical_encoding(self, df: pd.DataFrame, column: str) -> str:
-        if self.categorical_encoding == "auto":
-            if 2 < df[column].nunique() <= self.max_one_hot_unique:
-                return "onehot"
-            else:
-                return "ordinal"
-        else:
-            return self.categorical_encoding
-
-
-    def __fit_ordinal_encoding(self, df: pd.DataFrame, column: str) -> None:
-        cat = df[column].astype("category")
-        mapping = {str(cat_val): idx for idx, cat_val in enumerate(cat.cat.categories)}
-        self.encodings[column] = mapping
-        if self.verbose:
-            print(f" - Column '{column}': Ordinal encoding created with {len(mapping)} unique values. ({df[column].isna().sum()} null values will be filled with '{self.modes[column]}').")
-
-    def __fit_onehot_encoding(self, df: pd.DataFrame, column: str) -> None:
-        if self.rare_category_threshold > 0:
-            freqs = df[column].value_counts(normalize=True, dropna=True)
-            top = freqs[freqs >= self.rare_category_threshold].index.tolist()
-            categories = top + (["OTHER"] if len(top) < freqs.shape[0] else [])
-        else:
-            categories = df[column].dropna().unique().tolist()
-
-        self.onehot_columns[column] = [f"{column}__{str(cat)}" for cat in categories]
-        self.encodings[column] = set(str(c) for c in categories)
-        if self.verbose:
-            print(f" - Column '{column}': One-hot encoding created with {len(categories)} unique values. ({df[column].isna().sum()} null values will be filled with '{self.modes[column]}').")
-
 
     ########################## DATA PREPROCESSING FUNCTIONS ##########################
 
@@ -179,15 +157,8 @@ class Preprocessor:
                 if self.__check_for_too_many_categorical_values(df, column):
                     self.columns_to_drop.add(column)
                 else:
-                    self.modes[column] = str(df[column].mode()[0])
-
-                    categorical_strategy = self.__decide_categorical_encoding(df, column)
-                    self.categorical_strategy[column] = categorical_strategy
-
-                    if categorical_strategy == "ordinal":
-                        self.__fit_ordinal_encoding(df, column)
-                    else:
-                        self.__fit_onehot_encoding(df, column)
+                    params = self.categorical_encoder.fit_column(df[column], column_name=column)
+                    self.categorical_params[column] = params
 
 
 
@@ -215,37 +186,30 @@ class Preprocessor:
                 df[col] = self.numeric_scaler.transform_column(df[col], scaler_params)
 
         # Fill missing categorical values with modes and apply encoding
-        for col, mapping in self.modes.items():
-            if col not in df.columns:
-                continue
+        onehot_to_concat = []
+        onehot_new_cols: Set[str] = set()
 
-            if self.categorical_strategy[col] == "ordinal":
-                df[col] = df[col].fillna(self.modes[col]).astype(str)
-                df[col] = df[col].map(self.encodings[col]).fillna(-1).astype("int64")  # Unseen categories mapped to -1
-
+        for col, params in self.categorical_params.items():
+            if params.get('strategy') == 'ordinal':
+                if col not in df.columns:
+                    continue
+                df[col] = self.categorical_encoder.transform_column(df[col], params, column_name=col)
 
             else:
-                for oh_col, dummies in self.onehot_columns.items():
-                    if oh_col not in df.columns:
-                        for d in dummies:
-                            df[d] = 0
-                        continue
+                expected_cols = params.get('onehot_columns', [])
+                if col not in df.columns:
+                    for c in expected_cols:
+                        if c not in df.columns:
+                            df[c] = 0
+                    continue
 
-                    series = df[oh_col].fillna(self.modes.get(oh_col)).astype(str)
-                    allowed_categories = self.encodings[oh_col]
-                    if self.rare_category_threshold > 0 and ("OTHER" in allowed_categories):
-                        series = series.map(lambda x: x if x in allowed_categories else "OTHER")
+                dummies_df = self.categorical_encoder.transform_column(df[col], params, column_name=col)
+                df = df.drop(columns=[col])
+                onehot_to_concat.append(dummies_df)
+                onehot_new_cols.update(dummies_df.columns.tolist())
 
-                    dummies_df = pd.get_dummies(series, prefix=oh_col, prefix_sep="__", dummy_na=False).astype("int8")
-                    for d in dummies:
-                        if d not in dummies_df.columns:
-                            dummies_df[d] = 0
-                    dummies_df = dummies_df.reindex(columns=dummies)
-                    df = df.drop(columns=[oh_col])
-                    df = pd.concat([df, dummies_df], axis=1)
-
-
-        # TODO: Normalize categorical columns if needed
+        if onehot_to_concat:
+            df = pd.concat([df] + onehot_to_concat, axis=1)
 
         return df
 
