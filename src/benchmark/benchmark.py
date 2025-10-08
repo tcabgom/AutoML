@@ -1,3 +1,5 @@
+import random
+
 from src.basicautoml.config import AutoMLConfig
 from src.basicautoml.main import TFM_AutoML
 from src.benchmark.utils.data_storer import store_data
@@ -7,12 +9,21 @@ from datetime import datetime
 import time
 import numpy as np
 
-def run():
-    suite = load_benchmark_suite(271)
+TASK_IDS = [
+    3945, 146818, 146820, 167120, 168350, 168757, 168868, 168911, 189354,
+    189356, 189922, 190137, 190392, 190410, 190411, 190412, 359955, 359956,
+    359958, 359962, 359965, 359966, 359967, 359968, 359971, 359972, 359973,
+    359975, 359979, 359980, 359982, 359983, 359988, 359989, 359990, 359991,
+    359992, 359994, 360113, 360114, 360975
+]
 
-    for task_id in suite.tasks:
+def run():
+    #suite = load_benchmark_suite(271)
+
+    random.shuffle(TASK_IDS)
+
+    for task_id in TASK_IDS: #suite.tasks:
         # Obtener dataset
-        task_id = 7592
         x, y, dataset, train_indices, test_indices = load_task_dataset(task_id)
 
         if len(np.unique(y)) > 2:
@@ -31,7 +42,7 @@ def run():
                 search_type="bayesian",
 
                 n_trials=1000,
-                timeout=60,#3600,
+                timeout=3600,
                 scoring="roc_auc",
                 cv=5,
                 verbose=True,

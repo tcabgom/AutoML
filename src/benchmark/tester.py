@@ -1,7 +1,7 @@
+import openml
 
 from src.benchmark.benchmark import run
 from src.benchmark.utils.data_loader import load_benchmark_suite, load_task_dataset
-
 
 def test():
     suite = load_benchmark_suite(271)
