@@ -33,6 +33,7 @@ class BayesianSearchAutoML:
         self.best_model_class = None
         self.best_algorithm = None
         self.study = None
+        self.trained_models = 0
 
         # Semillas para reproducibilidad
         if self.random_state is not None:
@@ -52,6 +53,8 @@ class BayesianSearchAutoML:
 
         :return: Score value for the current trial.
         """
+
+        self.trained_models += 1
 
         # Choose model based on trial suggestions
         algo_choices = {algo.get_name(): algo for algo in self.algorithms}

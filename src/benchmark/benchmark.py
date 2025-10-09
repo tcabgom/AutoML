@@ -22,7 +22,7 @@ def run():
 
     random.shuffle(TASK_IDS)
 
-    for task_id in TASK_IDS: #suite.tasks:
+    for task_id in [359955, 146818, 168757, 146820, 168350, 359956]: #suite.tasks:
         # Obtener dataset
         x, y, dataset, train_indices, test_indices = load_task_dataset(task_id)
 
@@ -41,8 +41,8 @@ def run():
                 random_state=int(time.time()),
                 search_type="bayesian",
 
-                n_trials=1000,
-                timeout=3600,
+                n_trials=250,
+                timeout=1200,
                 scoring="roc_auc",
                 cv=5,
                 verbose=True,
@@ -92,7 +92,7 @@ def run():
             new_row["duration"] = training_duration + predict_duration
             new_row["training_duration"] = training_duration
             new_row["predict_duration"] = predict_duration
-            new_row["models_count"] = None
+            new_row["models_count"] = automl.searcher.trained_models
             new_row["seed"] = config.random_state
             new_row["info"] = None
             new_row["acc"] = acc

@@ -33,6 +33,7 @@ class RandomSearchAutoML:
         self.best_model_class = None
         self.best_algorithm = None
         self.study = None
+        self.trained_models = 0
 
         if self.random_state is not None:
             np.random.seed(self.random_state)
@@ -52,6 +53,7 @@ class RandomSearchAutoML:
         :return: Value of the score for the current trial.
         """
 
+        self.trained_models += 1
 
         # Chooses random model
         algo_obj = random.choice(self.algorithms)
