@@ -1,5 +1,5 @@
 # src/basicautoml/config.py
-from .algorithms.classification import DecisionTree, RandomForest, GradientBoosting, ExtraTree
+from .algorithms.classification import DecisionTree, RandomForest, GradientBoosting, ExtraTree, LogisticRegression
 from dataclasses import dataclass, field
 
 @dataclass
@@ -15,7 +15,8 @@ class AutoMLConfig:
         DecisionTree.Algorithm_DTC(),
         RandomForest.Algorithm_RFC(),
         ExtraTree.Algorithm_ETC(),
-        GradientBoosting.Algorithm_GBC()
+        GradientBoosting.Algorithm_GBC(),
+        #LogisticRegression.Algorithm_LR(),
     ])
     n_trials: int = 120
     timeout: float = 60

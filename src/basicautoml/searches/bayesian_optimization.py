@@ -14,9 +14,10 @@ class BayesianSearchAutoML:
                  timeout: float = 60,
                  scoring: str = "roc_auc",
                  cv: int = 5,
-                 verbose: bool = False,
                  random_state=None,
-                 dataset_size: str = "medium"):
+                 dataset_size: str = "medium",
+                 n_jobs: int = 1,
+                 verbose: bool = False):
 
         self.algorithms = algorithms
         self.n_trials = n_trials
@@ -26,6 +27,7 @@ class BayesianSearchAutoML:
         self.cv = cv
         self.random_state = random_state
         self.dataset_size = dataset_size
+        self.n_jobs = n_jobs
 
         self.best_score = -np.inf
         self.best_params = None

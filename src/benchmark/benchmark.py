@@ -3,7 +3,7 @@ import random
 from src.basicautoml.config import AutoMLConfig
 from src.basicautoml.main import TFM_AutoML
 from src.benchmark.utils.data_storer import store_data
-from utils.data_loader import load_benchmark_suite, load_task_dataset
+from src.benchmark.utils.data_loader import load_benchmark_suite, load_task_dataset
 from sklearn.metrics import accuracy_score, balanced_accuracy_score, log_loss
 from datetime import datetime
 import time
@@ -22,8 +22,9 @@ def run():
 
     random.shuffle(TASK_IDS)
 
-    for task_id in [359955, 146818, 168757, 146820, 168350, 359956]: #suite.tasks:
+    for task_id in [146818, 168757, 146820, 168350, 359956]: #suite.tasks:
         # Obtener dataset
+        #task_id = 359955
         x, y, dataset, train_indices, test_indices = load_task_dataset(task_id)
 
         if len(np.unique(y)) > 2:
@@ -42,7 +43,7 @@ def run():
                 search_type="bayesian",
 
                 n_trials=250,
-                timeout=1200,
+                timeout=30,
                 scoring="roc_auc",
                 cv=5,
                 verbose=True,
