@@ -22,4 +22,5 @@ class AutoMLConfig:
     timeout: float = 60
     scoring: str = "roc_auc"
     cv: int = 5
+    n_jobs: int = 1
     verbose: bool = False

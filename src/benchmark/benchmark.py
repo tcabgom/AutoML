@@ -24,7 +24,7 @@ def run():
 
     for task_id in [146818, 168757, 146820, 168350, 359956]: #suite.tasks:
         # Obtener dataset
-        #task_id = 359955
+        task_id = 359983
         x, y, dataset, train_indices, test_indices = load_task_dataset(task_id)
 
         if len(np.unique(y)) > 2:
@@ -42,10 +42,11 @@ def run():
                 random_state=int(time.time()),
                 search_type="bayesian",
 
-                n_trials=250,
-                timeout=30,
+                n_trials=500,
+                timeout=3600,
                 scoring="roc_auc",
                 cv=5,
+                n_jobs=8,
                 verbose=True,
             )
 
@@ -76,11 +77,15 @@ def run():
 
             predict_duration = int((time.time() - t0_pred)*10)/10
 
+            info = ""
+            if automl.best_model is None:
+                info = "Pipeline finished with no models trained"
+
             new_row = {}
             new_row["id"] = f"openml.org/t/{task_id}"
             new_row["task"] = dataset.name
             new_row["framework"] = "TFM_AutoML"
-            new_row["constraint"] = None
+            new_row["constraint"] = f"{config.timeout/3600}h{config.n_jobs}c"
             new_row["fold"] = fold
             new_row["type"] = "binary" if len(np.unique(y)) == 2 else "multiclass"
             new_row["result"] = score
@@ -95,7 +100,7 @@ def run():
             new_row["predict_duration"] = predict_duration
             new_row["models_count"] = automl.searcher.trained_models
             new_row["seed"] = config.random_state
-            new_row["info"] = None
+            new_row["info"] = info
             new_row["acc"] = acc
             new_row["balacc"] = balacc
             new_row["logloss"] = logloss

@@ -76,6 +76,7 @@ class TFM_AutoML:
             timeout=self.config.timeout,
             scoring=self.config.scoring,
             cv=self.config.cv,
+            n_jobs=self.config.n_jobs,
             verbose=self.config.verbose,
             random_state=self.config.random_state,
             dataset_size=dataset_size

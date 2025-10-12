@@ -94,8 +94,8 @@ class BayesianSearchAutoML:
             print(
                 f"Trial {trial.number + 1} | Model: {model_class.__name__} | Score: {mean_score:.4f} | Params: {params}")
 
-        # Store the algorithm object in the trial for later retrieval
-        trial.set_user_attr("algo_obj", algo_obj)
+        # Store the algorithm in the trial for later retrieval
+        trial.set_user_attr("algorithm_name", algo_obj.get_name())
 
         return mean_score
 
@@ -106,8 +106,20 @@ class BayesianSearchAutoML:
         :param x_data: DataFrame containing the features for training.
         :param y_data: DataFrame containing the target variable for training.
         """
+        # Comprobar si existe estudio antes de borrarlo
+        storage_url = "sqlite:///automl_bayesian_study.db"
+        study_name = "Bayesian_AutoML_Study"
+
+        # Obtener todos los estudios almacenados
+        existing_studies = [s.study_name for s in optuna.get_all_study_summaries(storage=storage_url)]
+
+        if study_name in existing_studies:
+            optuna.delete_study(study_name=study_name, storage=storage_url)
+
         # Create the Optuna study with TPE sampler
         self.study = optuna.create_study(
+            study_name="Bayesian_AutoML_Study",
+            storage="sqlite:///automl_bayesian_study.db",
             direction="maximize",
             sampler=optuna.samplers.TPESampler(seed=self.random_state)
         )
@@ -116,13 +128,15 @@ class BayesianSearchAutoML:
         self.study.optimize(
             lambda trial: self.__objective(trial, x_data, y_data),
             n_trials=self.n_trials,
-            timeout=self.timeout
+            timeout=self.timeout,
+            n_jobs=self.n_jobs
         )
 
         # Retrieve the best trial information
         self.best_params = self.study.best_params
         self.best_score = self.study.best_value
-        self.best_algorithm = self.study.best_trial.user_attrs["algo_obj"]
+        algo_name = self.study.best_trial.user_attrs["algorithm_name"]
+        self.best_algorithm = next(a for a in self.algorithms if a.get_name() == algo_name)
         self.best_model_class = self.best_algorithm.get_algorithm_class()
 
         # Extract the parameters for the best algorithm
