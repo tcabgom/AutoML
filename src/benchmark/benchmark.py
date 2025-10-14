@@ -1,9 +1,11 @@
 import random
 
+from src.basicautoml.algorithms.classification import DecisionTree, RandomForest, ExtraTree, GradientBoosting
 from src.basicautoml.config import AutoMLConfig
 from src.basicautoml.main import TFM_AutoML
 from src.benchmark.utils.data_storer import store_data
 from src.benchmark.utils.data_loader import load_benchmark_suite, load_task_dataset
+from src.basicautoml.utils.dataset_size import clasify_dataset_size
 from sklearn.metrics import accuracy_score, balanced_accuracy_score, log_loss
 from datetime import datetime
 import time
@@ -17,19 +19,40 @@ TASK_IDS = [
     359992, 359994, 360113, 360114, 360975
 ]
 
+TASK_IDS_GROUP_1 = [359988, 359991, 359982, 168911, 190411, 359972, 359962, 146820]
+TASK_IDS_GROUP_2 = [359989, 167120, 190392, 359983, 359975, 359968, 359956, 359955]
+TASK_IDS_GROUP_3 = [360113, 359994, 168868, 359973, 359990, 359980, 189354, 190412, 359992, 359971, 190137, 168350, 168757]
+TASK_IDS_GROUP_4 = [189356, 360114, 3945, 359967, 359966, 189922, 190410, 359979, 359965, 359958, 146818]
+
+HOURS = 1
+CORES = 8
+
 def run():
     #suite = load_benchmark_suite(271)
 
-    random.shuffle(TASK_IDS)
-
-    for task_id in [146818, 168757, 146820, 168350, 359956]: #suite.tasks:
+    for task_id in [146818]: #suite.tasks:
         # Obtener dataset
-        task_id = 359983
         x, y, dataset, train_indices, test_indices = load_task_dataset(task_id)
 
         if len(np.unique(y)) > 2:
             print(f" ! Dataset {dataset.name} is not binary classification")
             continue
+
+        dataset_size = clasify_dataset_size(x)
+        if dataset_size in ["large", "xlarge"]:
+            print(f" ! Dataset {dataset.name} is too large for the benchmark, no gradient boosting will be used")
+            algorithms = [
+                DecisionTree.Algorithm_DTC(),
+                RandomForest.Algorithm_RFC(),
+                ExtraTree.Algorithm_ETC(),
+            ]
+        else:
+            algorithms = [
+                DecisionTree.Algorithm_DTC(),
+                RandomForest.Algorithm_RFC(),
+                ExtraTree.Algorithm_ETC(),
+                GradientBoosting.Algorithm_GBC(),
+            ]
 
         for fold in range(10):
             # Realizar particion
@@ -41,12 +64,12 @@ def run():
                 test_size=0.0,
                 random_state=int(time.time()),
                 search_type="bayesian",
-
+                algorithms=algorithms,
                 n_trials=500,
-                timeout=3600,
+                timeout=HOURS*3600,
                 scoring="roc_auc",
                 cv=5,
-                n_jobs=8,
+                n_jobs=CORES,
                 verbose=True,
             )
 
@@ -85,7 +108,7 @@ def run():
             new_row["id"] = f"openml.org/t/{task_id}"
             new_row["task"] = dataset.name
             new_row["framework"] = "TFM_AutoML"
-            new_row["constraint"] = f"{config.timeout/3600}h{config.n_jobs}c"
+            new_row["constraint"] = f"{HOURS}h{CORES}c"
             new_row["fold"] = fold
             new_row["type"] = "binary" if len(np.unique(y)) == 2 else "multiclass"
             new_row["result"] = score
