@@ -67,6 +67,8 @@ class TFM_AutoML:
             from .searches.bayesian_optimization import BayesianSearchAutoML as Searcher
         elif self.config.search_type == 'random':
             from .searches.random_search import RandomSearchAutoML as Searcher
+        elif self.config.search_type == 'stacking':
+            from .searches.stacking_bayesian_search import StackingBayesianSearch as Searcher
         else:
             raise ValueError(f"Unsupported search type: {self.config.search_type}")
 
