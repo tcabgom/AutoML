@@ -1,5 +1,5 @@
 from src.basicautoml.algorithms.classification import DecisionTree, RandomForest, ExtraTree, GradientBoosting, \
-    LogisticRegression, KNeighbors, ExtremeGradientBoosting
+    LogisticRegression, KNeighbors, ExtremeGradientBoosting, HistGradientBoosting
 from src.basicautoml.main import TFM_AutoML
 from src.basicautoml.config import AutoMLConfig
 from src.basicautoml.utils.data_loader import DataLoader
@@ -22,7 +22,7 @@ def test_automl_pipeline():
     # LARGE: covertype
     # XLARGE:
 
-    dataset_name = "blood-transfusion-service-center" #"APSFailure"
+    dataset_name = "adult" #"APSFailure"
     loader = DataLoader(dataset_name)
     X, y = loader.load_data()
 
@@ -31,11 +31,11 @@ def test_automl_pipeline():
     config = AutoMLConfig(
         test_size=0.2,
         random_state=42,
-        search_type="bayesian",
+        search_type="stacking",
         scoring="roc_auc",
         verbose=True,
-        n_trials=25,
-        timeout=60,
+        n_trials=150,
+        timeout=600,
         algorithms=[
             DecisionTree.Algorithm_DTC(),
             RandomForest.Algorithm_RFC(),
@@ -43,7 +43,7 @@ def test_automl_pipeline():
             GradientBoosting.Algorithm_GBC(),
             LogisticRegression.Algorithm_LR(),
             KNeighbors.Algorithm_KNN(),
-            #ExtremeGradientBoosting.Algorithm_XGBC()
+            HistGradientBoosting.Algorithm_HistGBC()
         ]
     )
 

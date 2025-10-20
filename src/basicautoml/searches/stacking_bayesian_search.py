@@ -1,3 +1,4 @@
+import numpy as np
 from sklearn.linear_model import LogisticRegression
 
 from src.basicautoml.searches.bayesian_optimization import BayesianSearchAutoML
@@ -28,12 +29,17 @@ class StackingBayesianSearch:
 
         self.estimators = []
         self.best_model = None
-        self.best_score = 0
+        self.best_score = -float("inf")
         self.best_params = {}
+        self.best_algorithm = "StackingClassifier"
+        self.trained_models = 0
 
     def fit(self, X, y):
 
-        # Entrenar CADA modelo base con Bayesian Optimization N veces (quizas aplicar boostrapping o usar distintos modelos?)
+        self.estimators = []
+        base_scores = []
+
+        # Train each algorithm using Bayesian Search
         for alg in self.algorithms:
             bayes = BayesianSearchAutoML(
                 algorithms=[alg],
@@ -47,13 +53,15 @@ class StackingBayesianSearch:
                 verbose=self.verbose
             )
             bayes.fit(X, y)
-            # Guardar el mejor modelo entrenado de cada algoritmo
+
+            # Store the best model found for each algorithm
             print(f"Best model for {alg.get_name()}: {bayes.best_model} with score {bayes.best_score}")
             self.estimators.append((alg.get_name(), bayes.best_model))
+            base_scores.append(bayes.best_score)
 
         final_estimator = LogisticRegression(max_iter=1000, random_state=self.random_state)
 
-        # Construir Stacking model from sklearn.ensemble import StackingClassifier
+        # Create and train the Stacking Classifier
         self.best_model = StackingClassifier(
             estimators=self.estimators,
             final_estimator=final_estimator,
@@ -66,6 +74,9 @@ class StackingBayesianSearch:
         print(f"Training Stacking model with {len(self.estimators)} base estimators and final estimator {final_estimator}")
 
         self.best_model.fit(X, y)
+        self.best_score = float(np.mean(base_scores))
+        self.best_params = {"base_models": [name for name, _ in self.estimators]}
+        self.trained_models = len(self.estimators) + 1
 
     def predict(self, X):
         if self.best_model is None:

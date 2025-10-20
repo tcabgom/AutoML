@@ -13,7 +13,7 @@ class Preprocessor:
                  too_many_categorical_value_threshold: float = 0.05,
 
                  # Preprocessing variables
-                 numerical_scaling: str = "robustScaler",   # "standard", "minmax", "robustScaler", "none"
+                 numerical_scaling: str = "standard",   # "standard", "minmax", "robustScaler", "none"
                  too_many_lost_values_bool_columns: bool = True,
                  categorical_encoding: str = "auto",  # "auto", "ordinal", "onehot"
                  max_one_hot_unique: int = 5,

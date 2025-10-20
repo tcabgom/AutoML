@@ -1,6 +1,7 @@
 import random
 
-from src.basicautoml.algorithms.classification import DecisionTree, RandomForest, ExtraTree, GradientBoosting
+from src.basicautoml.algorithms.classification import DecisionTree, RandomForest, ExtraTree, GradientBoosting, \
+    HistGradientBoosting, LogisticRegression
 from src.basicautoml.config import AutoMLConfig
 from src.basicautoml.main import TFM_AutoML
 from src.benchmark.utils.data_storer import store_data
@@ -30,7 +31,7 @@ CORES = 8
 def run():
     #suite = load_benchmark_suite(271)
 
-    for task_id in [146818]: #suite.tasks:
+    for task_id in [359983]: #suite.tasks:
         # Obtener dataset
         x, y, dataset, train_indices, test_indices = load_task_dataset(task_id)
 
@@ -51,7 +52,9 @@ def run():
                 DecisionTree.Algorithm_DTC(),
                 RandomForest.Algorithm_RFC(),
                 ExtraTree.Algorithm_ETC(),
-                GradientBoosting.Algorithm_GBC(),
+                #GradientBoosting.Algorithm_GBC(),
+                HistGradientBoosting.Algorithm_HistGBC(),
+                LogisticRegression.Algorithm_LR(),
             ]
 
         for fold in range(10):
@@ -63,10 +66,10 @@ def run():
             config = AutoMLConfig(
                 test_size=0.0,
                 random_state=int(time.time()),
-                search_type="bayesian",
+                search_type="stacking",
                 algorithms=algorithms,
-                n_trials=500,
-                timeout=HOURS*3600,
+                n_trials=100,
+                timeout=60,#HOURS*3600,
                 scoring="roc_auc",
                 cv=5,
                 n_jobs=CORES,
