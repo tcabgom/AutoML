@@ -57,6 +57,8 @@ class StackingBayesianSearch:
             # Store the best model found for each algorithm
             print(f"Best model for {alg.get_name()}: {bayes.best_model} with score {bayes.best_score}")
             self.estimators.append((alg.get_name(), bayes.best_model))
+            self.trained_models += bayes.trained_models
+            self.best_params = {**self.best_params, **{alg.get_name(): bayes.best_params}}
             base_scores.append(bayes.best_score)
 
         final_estimator = LogisticRegression(max_iter=1000, random_state=self.random_state)
@@ -68,15 +70,13 @@ class StackingBayesianSearch:
             cv=self.cv,
             n_jobs=self.n_jobs,
             stack_method="auto",
-            passthrough=False
+            passthrough=True    # Incluir o no las caracteristicas originales en el conjunto dsie entrenamiento del estimador final
         )
 
         print(f"Training Stacking model with {len(self.estimators)} base estimators and final estimator {final_estimator}")
 
         self.best_model.fit(X, y)
         self.best_score = float(np.mean(base_scores))
-        self.best_params = {"base_models": [name for name, _ in self.estimators]}
-        self.trained_models = len(self.estimators) + 1
 
     def predict(self, X):
         if self.best_model is None:

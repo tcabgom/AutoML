@@ -41,18 +41,17 @@ def run():
 
         dataset_size = clasify_dataset_size(x)
         if dataset_size in ["large", "xlarge"]:
-            print(f" ! Dataset {dataset.name} is too large for the benchmark, no gradient boosting will be used")
+            print(f" ! Dataset {dataset.name} is too large ({dataset_size}) for the current benchmark settings, removing logistic regression")
             algorithms = [
-                DecisionTree.Algorithm_DTC(),
                 RandomForest.Algorithm_RFC(),
                 ExtraTree.Algorithm_ETC(),
+                HistGradientBoosting.Algorithm_HistGBC(),
+                #LogisticRegression.Algorithm_LR(),
             ]
         else:
             algorithms = [
-                DecisionTree.Algorithm_DTC(),
                 RandomForest.Algorithm_RFC(),
                 ExtraTree.Algorithm_ETC(),
-                #GradientBoosting.Algorithm_GBC(),
                 HistGradientBoosting.Algorithm_HistGBC(),
                 LogisticRegression.Algorithm_LR(),
             ]
@@ -66,10 +65,10 @@ def run():
             config = AutoMLConfig(
                 test_size=0.0,
                 random_state=int(time.time()),
-                search_type="stacking",
+                search_type="bayesian",
                 algorithms=algorithms,
-                n_trials=100,
-                timeout=60,#HOURS*3600,
+                n_trials=125,
+                timeout=(HOURS*3600),
                 scoring="roc_auc",
                 cv=5,
                 n_jobs=CORES,
