@@ -13,61 +13,51 @@ class Algorithm_HistGBC(parent_algorithm.ParentAlgorithm):
 
         if size == "tiny":
             return {
-                "learning_rate": (0.01, 0.3),          # shrinkage
-                "max_iter": (10, 30),                  # número de iteraciones (árboles)
-                "max_depth": (2, 6),                   # profundidad máxima por árbol
-                "max_leaf_nodes": (5, 31),             # hojas máximas por árbol
-                "min_samples_leaf": (1, 10),           # mín samples por hoja
-                "l2_regularization": (0.0, 0.1),       # regularización L2
-                "max_bins": (32, 255),                 # bins para histograma (<=255)
-                "max_features": (0.5, 1.0),            # fracción de features en cada split
+                "learning_rate": (0.01, 0.3),          # Tasa de aprendizaje
+                "max_iter": (5, 20),                   # Numero de arboles
+                "max_leaf_nodes": (5, 31),             # Hojas maximas por arbol
+                "min_samples_leaf": (1, 10),           # Min samples por hoja
+                "l2_regularization": (0.0, 0.1),       # Regularizacion L2
+                "max_features": (0.5, 1.0),            # Fraccion de features en cada split
             }
 
         elif size == "small":
             return {
                 "learning_rate": (0.01, 0.2),
-                "max_iter": (30, 80),
-                "max_depth": (3, 10),
+                "max_iter": (10, 40),
                 "max_leaf_nodes": (7, 63),
                 "min_samples_leaf": (1, 20),
                 "l2_regularization": (0.0, 0.5),
-                "max_bins": (64, 255),
                 "max_features": (0.3, 1.0),
             }
 
         elif size == "medium":
             return {
                 "learning_rate": (0.0075, 0.15),
-                "max_iter": (50, 200),
-                "max_depth": (3, 15),
+                "max_iter": (20, 80),
                 "max_leaf_nodes": (15, 127),
                 "min_samples_leaf": (1, 30),
                 "l2_regularization": (0.0, 1.0),
-                "max_bins": (64, 255),
                 "max_features": (0.1, 1.0),
             }
 
         elif size == "large":
             return {
                 "learning_rate": (0.001, 0.1),
-                "max_iter": (100, 400),
-                "max_depth": (5, 25),
+                "max_iter": (40, 160),
                 "max_leaf_nodes": (31, 255),
                 "min_samples_leaf": (1, 50),
                 "l2_regularization": (0.0, 2.0),
-                "max_bins": (32, 255),
                 "max_features": (0.05, 1.0),
             }
 
         elif size == "xlarge":
             return {
                 "learning_rate": (0.0005, 0.05),
-                "max_iter": (200, 1000),
-                "max_depth": (8, 40),
+                "max_iter": (80, 320),
                 "max_leaf_nodes": (31, 1023),
                 "min_samples_leaf": (1, 100),
                 "l2_regularization": (0.0, 5.0),
-                "max_bins": (32, 255),
                 "max_features": (0.01, 1.0),
             }
 

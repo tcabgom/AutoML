@@ -3,7 +3,7 @@ import optuna
 import random
 
 import pandas as pd
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.metrics import get_scorer
 
 
@@ -87,7 +87,8 @@ class BayesianSearchAutoML:
         scorer = get_scorer(self.scoring)
 
         # Perform cross-validation and compute mean score
-        scores = cross_val_score(model, x_data, y_data, cv=self.cv, scoring=scorer)
+        cv = StratifiedKFold(n_splits=self.cv, shuffle=True, random_state=self.random_state)
+        scores = cross_val_score(model, x_data, y_data, cv=cv, scoring=scorer)
         mean_score = float(np.mean(scores))
 
         if self.verbose:
@@ -96,10 +97,9 @@ class BayesianSearchAutoML:
 
         # Store the algorithm in the trial for later retrieval
         trial.set_user_attr("algorithm_name", algo_obj.get_name())
-
         return mean_score
 
-    def fit(self, x_data: pd.DataFrame, y_data: pd.DataFrame) -> None:
+    def fit(self, x_data: pd.DataFrame, y_data: pd.DataFrame, x_val: pd.DataFrame = None, y_val: pd.DataFrame = None) -> None:
         """
         Fit the AutoML model using Bayesian optimization.
 
@@ -133,19 +133,28 @@ class BayesianSearchAutoML:
         )
 
         # Retrieve the best trial information
-        self.best_params = self.study.best_params
         self.best_score = self.study.best_value
+        if self.verbose:
+            print(f"\n ! Best trial score: {self.best_score:.4f}")
         algo_name = self.study.best_trial.user_attrs["algorithm_name"]
         self.best_algorithm = next(a for a in self.algorithms if a.get_name() == algo_name)
         self.best_model_class = self.best_algorithm.get_algorithm_class()
 
         # Extract the parameters for the best algorithm
         prefix = self.best_algorithm.get_name() + "__"
-        model_params = { k.replace(prefix, ""): v for k, v in self.best_params.items() if k.startswith(prefix) }
+        model_params = { k.replace(prefix, ""): v for k, v in self.study.best_params.items() if k.startswith(prefix) }
+        self.best_params = model_params
 
         # Train the best model on the entire dataset
         self.best_model = self.best_model_class(**model_params)
         self.best_model.fit(x_data, y_data)
+
+        if x_val is not None and y_val is not None:
+            scorer = get_scorer(self.scoring)
+            val_score = scorer(self.best_model, x_val, y_val)
+            self.best_score = val_score
+            if self.verbose:
+                print(f" ! Validation score of the best model: {val_score:.4f}\n")
 
 
     def predict(self, x_data: pd.DataFrame) -> np.ndarray:

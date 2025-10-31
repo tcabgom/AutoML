@@ -1,7 +1,7 @@
 import random
 
 from src.basicautoml.algorithms.classification import DecisionTree, RandomForest, ExtraTree, GradientBoosting, \
-    HistGradientBoosting, LogisticRegression
+    HistGradientBoosting, LogisticRegression, ExtremeGradientBoosting
 from src.basicautoml.config import AutoMLConfig
 from src.basicautoml.main import TFM_AutoML
 from src.benchmark.utils.data_storer import store_data
@@ -13,7 +13,7 @@ import time
 import numpy as np
 
 TASK_IDS = [
-    3945, 146818, 146820, 167120, 168350, 168757, 168868, 168911, 189354,
+    3945,   146818, 146820, 167120, 168350, 168757, 168868, 168911, 189354,
     189356, 189922, 190137, 190392, 190410, 190411, 190412, 359955, 359956,
     359958, 359962, 359965, 359966, 359967, 359968, 359971, 359972, 359973,
     359975, 359979, 359980, 359982, 359983, 359988, 359989, 359990, 359991,
@@ -23,7 +23,7 @@ TASK_IDS = [
 TASK_IDS_GROUP_1 = [359988, 359991, 359982, 168911, 190411, 359972, 359962, 146820]
 TASK_IDS_GROUP_2 = [359989, 167120, 190392, 359983, 359975, 359968, 359956, 359955]
 TASK_IDS_GROUP_3 = [360113, 359994, 168868, 359973, 359990, 359980, 189354, 190412, 359992, 359971, 190137, 168350, 168757]
-TASK_IDS_GROUP_4 = [189356, 360114, 3945, 359967, 359966, 189922, 190410, 359979, 359965, 359958, 146818]
+TASK_IDS_GROUP_4 = [189356, 360114, 3945,   359967, 359966, 189922, 190410, 359979, 359965, 359958, 146818]
 
 HOURS = 1
 CORES = 8
@@ -31,7 +31,7 @@ CORES = 8
 def run():
     #suite = load_benchmark_suite(271)
 
-    for task_id in [359983]: #suite.tasks:
+    for task_id in [359955]: #suite.tasks:
         # Obtener dataset
         x, y, dataset, train_indices, test_indices = load_task_dataset(task_id)
 
@@ -52,8 +52,9 @@ def run():
             algorithms = [
                 RandomForest.Algorithm_RFC(),
                 ExtraTree.Algorithm_ETC(),
-                HistGradientBoosting.Algorithm_HistGBC(),
+                #HistGradientBoosting.Algorithm_HistGBC(),
                 LogisticRegression.Algorithm_LR(),
+                ExtremeGradientBoosting.Algorithm_XGBC()
             ]
 
         for fold in range(10):
@@ -64,10 +65,11 @@ def run():
             # Entrenar AutoML
             config = AutoMLConfig(
                 test_size=0.0,
+                validation_size=0.1,
                 random_state=int(time.time()),
-                search_type="bayesian",
+                search_type="stacking",
                 algorithms=algorithms,
-                n_trials=125,
+                n_trials=30,#125,
                 timeout=(HOURS*3600),
                 scoring="roc_auc",
                 cv=5,
@@ -79,6 +81,7 @@ def run():
 
             t0_train = time.time()
             automl.fit(X_train, y_train)
+
             training_duration = int((time.time() - t0_train)*10)/10
 
             # Evaluar y almacenar los resultados

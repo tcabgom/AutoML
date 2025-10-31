@@ -6,8 +6,10 @@ from dataclasses import dataclass, field
 class AutoMLConfig:
     # Data loading and preprocessing
     test_size: float = 0.2
+    validation_size: float = 0.0
     random_state: int = 42
     preprocessor_params: dict = field(default_factory=dict)
+    skip_preprocessing: bool = False
 
     # Search settings
     search_type: str = "bayesian"

@@ -30,20 +30,23 @@ def test_automl_pipeline():
 
     config = AutoMLConfig(
         test_size=0.2,
+        validation_size=0.1,
         random_state=42,
-        search_type="stacking",
+        search_type="bayesian",
         scoring="roc_auc",
         verbose=True,
-        n_trials=150,
+        n_trials=100,
         timeout=600,
+        n_jobs=8,
         algorithms=[
-            DecisionTree.Algorithm_DTC(),
+            #DecisionTree.Algorithm_DTC(),
             RandomForest.Algorithm_RFC(),
             ExtraTree.Algorithm_ETC(),
-            GradientBoosting.Algorithm_GBC(),
+            #GradientBoosting.Algorithm_GBC(),
             LogisticRegression.Algorithm_LR(),
-            KNeighbors.Algorithm_KNN(),
-            HistGradientBoosting.Algorithm_HistGBC()
+            #KNeighbors.Algorithm_KNN(),
+            #HistGradientBoosting.Algorithm_HistGBC(),
+            ExtremeGradientBoosting.Algorithm_XGBC()
         ]
     )
 
