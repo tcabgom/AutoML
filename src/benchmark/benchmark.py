@@ -61,7 +61,7 @@ def run():
             # Realizar particion
             X_train, y_train = x.iloc[train_indices[fold]], y.iloc[train_indices[fold]]
             X_test, y_test = x.iloc[test_indices[fold]], y.iloc[test_indices[fold]]
-
+            
             # Entrenar AutoML
             config = AutoMLConfig(
                 test_size=0.0,

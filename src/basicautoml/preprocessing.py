@@ -164,10 +164,7 @@ class Preprocessor:
 
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        #print(self.onehot_columns) # TODO Remove
-        #print(self.categorical_strategy)
-        #print(self.encodings)
-        #print("\n\n\n")
+        df = df.copy(deep=True)
         if self.too_many_lost_values_bool_columns:
             for col in self.columns_to_replace_bool_lost_values:
                 if col in df.columns:

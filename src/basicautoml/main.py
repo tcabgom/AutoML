@@ -136,6 +136,7 @@ class TFM_AutoML:
         """
         Preprocess and predict probabilities.
         """
+
         if self.best_model is None:
             raise RuntimeError("Model not trained. Call fit() first.")
 
@@ -155,6 +156,7 @@ class TFM_AutoML:
         """
         Score the best model on provided data.
         """
+        #X.to_csv("before_preprocessed_data_test.csv", index=True)
         if self.best_model is None:
             raise RuntimeError("Model not trained. Call fit() first.")
 
@@ -162,6 +164,8 @@ class TFM_AutoML:
             X_prep = self.preprocessor.transform(X)
         else:
             X_prep = X
+
+        #X_prep.to_csv("preprocessed_data_test.csv", index=True)
 
         if hasattr(self, "label_encoder_y") and self.label_encoder_y is not None:
             # Solo transformar si y contiene etiquetas originales (no numericas 0..n-1)
