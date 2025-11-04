@@ -32,7 +32,7 @@ CORES = 8
 def run():
     #suite = load_benchmark_suite(271)
 
-    for task_id in [359955]: #suite.tasks:
+    for task_id in [168757]: #suite.tasks:
         # Obtener dataset
         x, y, dataset, train_indices, test_indices = load_task_dataset(task_id)
 
@@ -61,7 +61,7 @@ def run():
                 random_state=int(time.time()),
                 search_type="stacking",
                 algorithms=algorithms,
-                n_trials=125,
+                n_trials=30,
                 timeout=(HOURS*3600)/5,
                 scoring="roc_auc",
                 cv=5,
@@ -127,6 +127,7 @@ def run():
             new_row["logloss"] = logloss
             new_row["models_ensemble_count"] = None
             new_row["auc"] = score if len(np.unique(y)) == 2 else None
+            new_row["algorithm_name"] = automl.searcher.best_algorithm
 
             store_data("results.csv", new_row)
             print(f"Result stored for dataset {dataset.name}, fold {fold}")

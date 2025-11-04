@@ -1,5 +1,5 @@
 import pandas as pd
-
+import re
 
 class CategoricalEncoder:
 
@@ -52,7 +52,11 @@ class CategoricalEncoder:
                 else:
                     unique_vals = non_na.unique().tolist()                                  # Si no hay umbral, usar todas las categorias
             res['categories'] = [str(c) for c in unique_vals]                               # Guardar categorias
-            res['onehot_columns'] = [f"{column_name}__{str(cat)}" for cat in unique_vals]   # Guardar nombres de columnas one-hot
+
+            res['onehot_columns'] = [
+                re.sub(r'[\[\]<>]', '_', f"{column_name}__{str(cat)}")
+                for cat in unique_vals
+            ]   # Guardar nombres de columnas one-hot
 
             if self.verbose:
                 print(f" - Column '{column_name}': One-hot encoding created with {len(unique_vals)} unique values. ({series.isna().sum()} null values will be filled with '{str(series.mode(dropna=True)[0])}').")

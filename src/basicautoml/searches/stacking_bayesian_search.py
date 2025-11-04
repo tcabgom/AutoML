@@ -125,6 +125,7 @@ class StackingBayesianSearch:
         self.best_model = models[best_model_name]
         self.best_params = params[best_model_name]
         self.best_score = scores[best_model_name]
+        self.best_algorithm = best_model_name
         print(f" ! Best model overall: {best_model_name} with score {scores[best_model_name]}\n")
 
         #self.best_score = float(np.mean(base_scores))
