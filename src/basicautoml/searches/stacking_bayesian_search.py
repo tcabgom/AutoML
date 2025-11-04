@@ -8,6 +8,7 @@ from src.basicautoml.algorithms.classification import LogisticRegression
 from src.basicautoml.searches.bayesian_optimization import BayesianSearchAutoML
 from sklearn.ensemble import StackingClassifier
 
+
 class StackingBayesianSearch:
 
     def __init__(self,
@@ -77,6 +78,7 @@ class StackingBayesianSearch:
 
         meta_X = pd.DataFrame(meta_features, columns=[name for name, _ in self.estimators])
         meta_y = y_data
+
         print("Meta-features dataset generated. Beggining training of stacking model\n")
 
         # 3. Train the meta-model using Bayesian Search
@@ -87,9 +89,8 @@ class StackingBayesianSearch:
             scoring=self.scoring,
             cv=self.cv,
             random_state=self.random_state,
-            dataset_size=self.dataset_size,
             n_jobs=self.n_jobs,
-            verbose=self.verbose
+            verbose=self.verbose,
         )
 
         meta_bayes.fit(meta_X, meta_y)

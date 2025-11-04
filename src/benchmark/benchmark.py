@@ -40,7 +40,7 @@ def run():
             print(f" ! Dataset {dataset.name} is not binary classification")
             continue
 
-        meta_features = obtain_metafeatures(dataset)
+        #meta_features = obtain_metafeatures(dataset)
 
         algorithms = [
             RandomForest.Algorithm_RFC(),
@@ -131,4 +131,4 @@ def run():
             store_data("results.csv", new_row)
             print(f"Result stored for dataset {dataset.name}, fold {fold}")
 
-        save_meta_record(meta_features, "", automl.best_params)
+        #save_meta_record(meta_features, "", automl.best_params)
