@@ -4,6 +4,7 @@ from src.basicautoml.algorithms.classification import DecisionTree, RandomForest
     HistGradientBoosting, LogisticRegression, ExtremeGradientBoosting
 from src.basicautoml.config import AutoMLConfig
 from src.basicautoml.main import TFM_AutoML
+from src.basicautoml.meta_learning import obtain_metafeatures, save_meta_record
 from src.benchmark.utils.data_storer import store_data
 from src.benchmark.utils.data_loader import load_benchmark_suite, load_task_dataset
 from src.basicautoml.utils.dataset_size import clasify_dataset_size
@@ -25,7 +26,7 @@ TASK_IDS_GROUP_2 = [359989, 167120, 190392, 359983, 359975, 359968, 359956, 3599
 TASK_IDS_GROUP_3 = [360113, 359994, 168868, 359973, 359990, 359980, 189354, 190412, 359992, 359971, 190137, 168350, 168757]
 TASK_IDS_GROUP_4 = [189356, 360114, 3945,   359967, 359966, 189922, 190410, 359979, 359965, 359958, 146818]
 
-HOURS = 1
+HOURS = 4
 CORES = 8
 
 def run():
@@ -39,29 +40,20 @@ def run():
             print(f" ! Dataset {dataset.name} is not binary classification")
             continue
 
-        dataset_size = clasify_dataset_size(x)
-        if dataset_size in ["large", "xlarge"]:
-            print(f" ! Dataset {dataset.name} is too large ({dataset_size}) for the current benchmark settings, removing logistic regression")
-            algorithms = [
-                RandomForest.Algorithm_RFC(),
-                ExtraTree.Algorithm_ETC(),
-                HistGradientBoosting.Algorithm_HistGBC(),
-                #LogisticRegression.Algorithm_LR(),
-            ]
-        else:
-            algorithms = [
-                RandomForest.Algorithm_RFC(),
-                ExtraTree.Algorithm_ETC(),
-                #HistGradientBoosting.Algorithm_HistGBC(),
-                LogisticRegression.Algorithm_LR(),
-                ExtremeGradientBoosting.Algorithm_XGBC()
-            ]
+        meta_features = obtain_metafeatures(dataset)
+
+        algorithms = [
+            RandomForest.Algorithm_RFC(),
+            ExtraTree.Algorithm_ETC(),
+            LogisticRegression.Algorithm_LR(),
+            ExtremeGradientBoosting.Algorithm_XGBC()
+        ]
 
         for fold in range(10):
             # Realizar particion
             X_train, y_train = x.iloc[train_indices[fold]], y.iloc[train_indices[fold]]
             X_test, y_test = x.iloc[test_indices[fold]], y.iloc[test_indices[fold]]
-            
+
             # Entrenar AutoML
             config = AutoMLConfig(
                 test_size=0.0,
@@ -69,8 +61,8 @@ def run():
                 random_state=int(time.time()),
                 search_type="stacking",
                 algorithms=algorithms,
-                n_trials=30,#125,
-                timeout=(HOURS*3600),
+                n_trials=125,
+                timeout=(HOURS*3600)/5,
                 scoring="roc_auc",
                 cv=5,
                 n_jobs=CORES,
@@ -109,6 +101,7 @@ def run():
             if automl.best_model is None:
                 info = "Pipeline finished with no models trained"
 
+
             new_row = {}
             new_row["id"] = f"openml.org/t/{task_id}"
             new_row["task"] = dataset.name
@@ -137,3 +130,5 @@ def run():
 
             store_data("results.csv", new_row)
             print(f"Result stored for dataset {dataset.name}, fold {fold}")
+
+        save_meta_record(meta_features, "", automl.best_params)
