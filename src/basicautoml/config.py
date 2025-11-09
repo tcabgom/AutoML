@@ -26,3 +26,9 @@ class AutoMLConfig:
     cv: int = 5
     n_jobs: int = 1
     verbose: bool = False
+
+    # Meta Learning Settings
+    collect_meta_data: bool = False
+    use_meta_learning: bool = False
+    meta_database_path: str = "meta_database.json"
+    n_nearest_datasets: int = 5

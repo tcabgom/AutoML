@@ -6,6 +6,8 @@ import pandas as pd
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.metrics import get_scorer
 
+from src.basicautoml.meta_learning import find_nearest_datasets
+
 
 class BayesianSearchAutoML:
     def __init__(self,
@@ -17,6 +19,7 @@ class BayesianSearchAutoML:
                  random_state=None,
                  dataset_size: str = "medium",
                  n_jobs: int = 1,
+                 dataset_meta_data: dict() = None,
                  verbose: bool = False):
 
         self.algorithms = algorithms
@@ -28,6 +31,7 @@ class BayesianSearchAutoML:
         self.random_state = random_state
         self.dataset_size = dataset_size
         self.n_jobs = n_jobs
+        self.dataset_meta_data = dataset_meta_data
 
         self.best_score = -np.inf
         self.best_params = None
@@ -99,7 +103,8 @@ class BayesianSearchAutoML:
         trial.set_user_attr("algorithm_name", algo_obj.get_name())
         return mean_score
 
-    def fit(self, x_data: pd.DataFrame, y_data: pd.DataFrame, x_val: pd.DataFrame = None, y_val: pd.DataFrame = None) -> None:
+    def fit(self, x_data: pd.DataFrame, y_data: pd.DataFrame,
+            x_val: pd.DataFrame = None, y_val: pd.DataFrame = None) -> None:
         """
         Fit the AutoML model using Bayesian optimization.
 
@@ -123,6 +128,25 @@ class BayesianSearchAutoML:
             direction="maximize",
             sampler=optuna.samplers.TPESampler(seed=self.random_state)
         )
+
+        # Enqueue initial points if provided for meta learning warm start
+        if self.dataset_meta_data is not None:
+            initial_points = find_nearest_datasets(
+                query_meta_features=self.dataset_meta_data,
+                n=5,
+                dataset_size=self.dataset_size,
+                allowed_algorithms=[a.get_algorithm_class().__name__ for a in self.algorithms]
+            )
+            if len(initial_points) > 0:
+                print(f"Enqueuing {len(initial_points)} initial points from meta-learning warm start.")
+            for point in initial_points:
+                print(point)
+                algo_name = point["algorithm"]
+                hyperparams = point["hyperparameters"]
+                formatted_params = {"algorithm": algo_name}
+                for param, value in hyperparams.items():
+                    formatted_params[f"{algo_name}__{param}"] = value
+                self.study.enqueue_trial(formatted_params)
 
         # Optimize the study using the objective function
         self.study.optimize(

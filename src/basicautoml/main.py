@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
 from .config import AutoMLConfig
+from .meta_learning import obtain_metafeatures, save_meta_record, find_nearest_datasets
 from .utils.dataset_size import clasify_dataset_size
 
 
@@ -36,7 +37,28 @@ class TFM_AutoML:
         self.X_test = None
         self.y_test = None
 
-    def fit(self, X: pd.DataFrame, y: pd.Series) -> None:
+        self.this_dataset_meta_features = None
+
+    def fit(self, X: pd.DataFrame = None, y: pd.Series = None, dataset = None) -> None:
+
+        if dataset is not None:
+            X, y, _, _ = dataset.get_data(target=dataset.default_target_attribute)
+            if self.config.collect_meta_data or self.config.use_meta_learning:
+                self.this_dataset_meta_features = obtain_metafeatures(dataset)
+        else:
+            if X is None or y is None:
+                raise ValueError("Provide either X and y or dataset to fit the model.")
+            else:
+                # If the data is provided with both versions, use the dataset to obtain the metadata
+                # and the data from X and y directly (to preserve fold partitions)
+                X = X.copy()
+                y = y.copy()
+            if dataset is None and (self.config.use_meta_learning or self.config.collect_meta_data):
+                raise NotImplementedError("Meta-learning is not implemented when fitting only with X and y directly.")
+
+        self.__fit_core(X, y)
+
+    def __fit_core(self, X: pd.DataFrame, y: pd.Series) -> None:
         """
         Fit the entire AutoML pipeline: split data, preprocess, search, select best model.
         """
@@ -92,6 +114,8 @@ class TFM_AutoML:
         else:
             raise ValueError(f"Unsupported search type: {self.config.search_type}")
 
+        dataset_meta_for_searcher = self.this_dataset_meta_features if self.config.use_meta_learning else None
+
         self.searcher = Searcher(
             algorithms=self.config.algorithms,
             n_trials=self.config.n_trials,
@@ -101,7 +125,8 @@ class TFM_AutoML:
             n_jobs=self.config.n_jobs,
             verbose=self.config.verbose,
             random_state=self.config.random_state,
-            dataset_size=dataset_size
+            dataset_size=dataset_size,
+            dataset_meta_data=dataset_meta_for_searcher
         )
         # Run search
         self.searcher.fit(X_train_prep, y_train, X_val_prep, y_val)
@@ -109,6 +134,16 @@ class TFM_AutoML:
         self.best_model = self.searcher.best_model
         self.best_score = self.searcher.best_score
         self.best_params = self.searcher.best_params
+
+        if self.config.collect_meta_data and self.this_dataset_meta_features is not None:
+            save_meta_record(
+                meta_features=self.this_dataset_meta_features,
+                best_model_name=type(self.best_model).__name__,
+                best_model_params=self.best_params,
+                best_model_score=self.best_score,
+                dataset_size=dataset_size,
+                file_path=self.config.meta_database_path
+            )
 
 
 

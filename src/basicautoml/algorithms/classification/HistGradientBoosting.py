@@ -4,7 +4,7 @@ from .. import parent_algorithm
 class Algorithm_HistGBC(parent_algorithm.ParentAlgorithm):
 
     def get_name(self) -> str:
-        return "Histogram Gradient Boosting Classifier"
+        return "HistGradientBoostingClassifier"
 
     def get_algorithm_class(self) -> type:
         return HistGradientBoostingClassifier

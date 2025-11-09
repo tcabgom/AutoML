@@ -4,7 +4,7 @@ from .. import parent_algorithm
 class Algorithm_GBC(parent_algorithm.ParentAlgorithm):
 
     def get_name(self) -> str:
-        return "Gradient Boosting Classifier"
+        return "GradientBoostingClassifier"
 
     def get_algorithm_class(self) -> type:
         return GradientBoostingClassifier

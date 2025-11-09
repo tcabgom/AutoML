@@ -20,6 +20,7 @@ class StackingBayesianSearch:
                 random_state=None,
                 dataset_size: str = "medium",
                 n_jobs: int = 1,
+                dataset_meta_data: dict() = None,
                 verbose: bool = False):
 
         self.algorithms = algorithms
@@ -31,6 +32,7 @@ class StackingBayesianSearch:
         self.random_state = random_state
         self.dataset_size = dataset_size
         self.n_jobs = n_jobs
+        self.dataset_meta_data = dataset_meta_data
 
         self.estimators = []
         self.best_model = None
@@ -57,6 +59,7 @@ class StackingBayesianSearch:
                 random_state=self.random_state,
                 dataset_size=self.dataset_size,
                 n_jobs=self.n_jobs,
+                dataset_meta_data=self.dataset_meta_data,
                 verbose=self.verbose
             )
             bayes.fit(X_data, y_data, x_val, y_val)
@@ -74,7 +77,7 @@ class StackingBayesianSearch:
         print("Generating meta-features dataset for stacking...\n")
         meta_features = np.zeros((len(X_data), len(self.estimators)))
         for i, (name, model) in enumerate(self.estimators):
-            meta_features[:, i] = cross_val_predict(model, X_data, y_data, cv=self.cv, method="predict_proba", n_jobs=self.n_jobs)[:, 1]
+            meta_features[:, i] = cross_val_predict(model, X_data, y_data, cv=self.cv, method="predict_proba", n_jobs=1)[:, 1]
 
         meta_X = pd.DataFrame(meta_features, columns=[name for name, _ in self.estimators])
         meta_y = y_data
@@ -90,8 +93,11 @@ class StackingBayesianSearch:
             cv=self.cv,
             random_state=self.random_state,
             n_jobs=self.n_jobs,
+            dataset_size=self.dataset_size,
+            dataset_meta_data=self.dataset_meta_data,
             verbose=self.verbose,
         )
+        self.trained_models += meta_bayes.trained_models
 
         meta_bayes.fit(meta_X, meta_y)
 
@@ -109,6 +115,7 @@ class StackingBayesianSearch:
             stack_method="auto",
             passthrough=True    # Incluir o no las caracteristicas originales en el conjunto dsie entrenamiento del estimador final
         )
+
 
         print(f"\n ! Training Final Stacking Model...")
         stacking_model.fit(X_data, y_data)

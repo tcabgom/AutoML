@@ -4,7 +4,7 @@ from .. import parent_algorithm
 class Algorithm_DTC (parent_algorithm.ParentAlgorithm):
 
     def get_name(self) -> str:
-        return "Decision Tree Classifier"
+        return "DecisionTreeClassifier"
 
     def get_algorithm_class(self) -> type:
         return DecisionTreeClassifier

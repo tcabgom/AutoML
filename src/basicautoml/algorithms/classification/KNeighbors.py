@@ -4,7 +4,7 @@ from .. import parent_algorithm
 class Algorithm_KNN(parent_algorithm.ParentAlgorithm):
 
     def get_name(self) -> str:
-        return "K-Nearest Neighbors Classifier"
+        return "KNeighborsClassifier"
 
     def get_algorithm_class(self) -> type:
         return KNeighborsClassifier

@@ -32,15 +32,13 @@ CORES = 8
 def run():
     #suite = load_benchmark_suite(271)
 
-    for task_id in [168757]: #suite.tasks:
+    for task_id in [146820, 359955, 168757, 146818, 359958, 168350, 359962]: #suite.tasks:
         # Obtener dataset
         x, y, dataset, train_indices, test_indices = load_task_dataset(task_id)
 
         if len(np.unique(y)) > 2:
             print(f" ! Dataset {dataset.name} is not binary classification")
             continue
-
-        #meta_features = obtain_metafeatures(dataset)
 
         algorithms = [
             RandomForest.Algorithm_RFC(),
@@ -50,6 +48,7 @@ def run():
         ]
 
         for fold in range(10):
+
             # Realizar particion
             X_train, y_train = x.iloc[train_indices[fold]], y.iloc[train_indices[fold]]
             X_test, y_test = x.iloc[test_indices[fold]], y.iloc[test_indices[fold]]
@@ -59,7 +58,7 @@ def run():
                 test_size=0.0,
                 validation_size=0.1,
                 random_state=int(time.time()),
-                search_type="stacking",
+                search_type="bayesian",#"stacking",
                 algorithms=algorithms,
                 n_trials=30,
                 timeout=(HOURS*3600)/5,
@@ -67,12 +66,15 @@ def run():
                 cv=5,
                 n_jobs=CORES,
                 verbose=True,
+                collect_meta_data=True,
+                use_meta_learning=False,
+                n_nearest_datasets=5
             )
 
             automl = TFM_AutoML(config)
 
             t0_train = time.time()
-            automl.fit(X_train, y_train)
+            automl.fit(X=X_train,y=y_train,dataset=dataset)
 
             training_duration = int((time.time() - t0_train)*10)/10
 
@@ -132,4 +134,3 @@ def run():
             store_data("results.csv", new_row)
             print(f"Result stored for dataset {dataset.name}, fold {fold}")
 
-        #save_meta_record(meta_features, "", automl.best_params)

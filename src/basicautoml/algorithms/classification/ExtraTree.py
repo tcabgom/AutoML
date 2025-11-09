@@ -5,7 +5,7 @@ from .. import parent_algorithm
 class Algorithm_ETC(parent_algorithm.ParentAlgorithm):
 
     def get_name(self) -> str:
-        return "Extra Trees Classifier"
+        return "ExtraTreesClassifier"
 
     def get_algorithm_class(self) -> type:
         return ExtraTreesClassifier

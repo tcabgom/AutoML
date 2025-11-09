@@ -4,7 +4,7 @@ from .. import parent_algorithm
 class Algorithm_XGBC(parent_algorithm.ParentAlgorithm):
 
     def get_name(self) -> str:
-        return "Extreme Gradient Boosting Classifier"
+        return "XGBClassifier"
 
     def get_algorithm_class(self) -> type:
         return XGBClassifier

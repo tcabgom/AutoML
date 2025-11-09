@@ -4,7 +4,7 @@ from .. import parent_algorithm
 class Algorithm_RFC(parent_algorithm.ParentAlgorithm):
 
     def get_name(self) -> str:
-        return "Random Forest Classifier"
+        return "RandomForestClassifier"
 
     def get_algorithm_class(self) -> type:
         return RandomForestClassifier

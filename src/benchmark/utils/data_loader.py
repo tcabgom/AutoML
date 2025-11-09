@@ -16,5 +16,6 @@ def load_task_dataset(task_id: int):
         train_indices, test_indices = task.get_train_test_split_indices(i)
         all_train_indices.append(train_indices)
         all_test_indices.append(test_indices)
+
     return X, y, dataset, all_train_indices, all_test_indices
 

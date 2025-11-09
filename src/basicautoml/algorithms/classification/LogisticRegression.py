@@ -4,7 +4,7 @@ from .. import parent_algorithm
 class Algorithm_LR(parent_algorithm.ParentAlgorithm):
 
     def get_name(self) -> str:
-        return "Logistic Regression"
+        return "LogisticRegression"
 
     def get_algorithm_class(self) -> type:
         return LogisticRegression
@@ -33,7 +33,7 @@ class Algorithm_LR(parent_algorithm.ParentAlgorithm):
                 "solver": ["liblinear"],
                 "class_weight": ["balanced"],
                 "C": [10**x for x in range(-3, 4)],
-                "max_iter": [100*x for x in range(3, 12)]
+                "max_iter": [100*x for x in range(5, 15)]
             }
         elif size == "large":
             return {
@@ -41,7 +41,7 @@ class Algorithm_LR(parent_algorithm.ParentAlgorithm):
                 "solver": ["liblinear"],
                 "class_weight": ["balanced"],
                 "C": [10**x for x in range(-4, 5)],
-                "max_iter": [100*x for x in range(5, 15)]
+                "max_iter": [100*x for x in range(10, 20)]
             }
         elif size == "xlarge":
             return {
@@ -49,7 +49,7 @@ class Algorithm_LR(parent_algorithm.ParentAlgorithm):
                 "solver": ["liblinear"],
                 "class_weight": ["balanced"],
                 "C": [10**x for x in range(-4, 5)],
-                "max_iter": [100*x for x in range(10, 20)]
+                "max_iter": [100*x for x in range(12, 30)]
             }
         else:
             raise ValueError(f"Unknown size '{size}'. Use 'tiny', 'small', 'medium', 'large', or 'xlarge'.")
