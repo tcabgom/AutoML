@@ -10,6 +10,21 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 
+BASIC_METAFEATURES = [
+    'NumberOfInstances',
+    'NumberOfFeatures',
+    'Dimensionality'
+]
+
+STATISTICAL_METAFEATURES = [
+    'ClassEntropy',
+    'MeanMutualInformation',
+    'MaxMutualInformation',
+    'MinMutualInformation',
+    'MajorityClassPercentage',
+    'MinorityClassPercentage'
+]
+
 LANDMARKERS = [
     'REPTreeDepth1AUC',
     'REPTreeDepth2AUC',
@@ -25,14 +40,23 @@ LANDMARKERS = [
 def obtain_metafeatures(dataset: object) -> dict:
     # En main.py
     qualities = dataset.qualities
+    X, y, _, _ = dataset.get_data(target=dataset.default_target_attribute)
+
+    meta_features = {}
+
+    def get_or_compute(keys: list[str], compute_fn) -> dict[str, float]:
+        if not any(k in qualities for k in keys):
+            return compute_fn(X, y) if compute_fn.__code__.co_argcount > 1 else compute_fn(X)
+        return {k: qualities[k] for k in keys if k in qualities}
+
+    # Basic meta-features
+    meta_features.update(get_or_compute(BASIC_METAFEATURES, compute_basic_meta_features))
+
+    # Statistical meta-features
+    meta_features.update(get_or_compute(STATISTICAL_METAFEATURES, compute_statistical_meta_features))
 
     # Landmarkers
-    # If no landmarkers are stored, compute them, otherwise, just use the stored ones
-    if sum(lm in qualities for lm in LANDMARKERS) == 0:
-        X, y, _, _ = dataset.get_data(target=dataset.default_target_attribute)
-        meta_features = compute_landmarkers(X, y)
-    else:
-        meta_features = {lm: qualities[lm] for lm in LANDMARKERS if lm in qualities}
+    meta_features.update(get_or_compute(LANDMARKERS, compute_landmarkers))
 
     print("[INFO] Meta-features obtained:", meta_features)
     return meta_features
@@ -67,6 +91,36 @@ def compute_landmarkers(X: np.ndarray, y: np.ndarray) -> dict:
         results[name] = auc
 
     return results
+
+
+def compute_basic_meta_features(X: np.ndarray) -> dict:
+    meta_features = {
+        'NumberOfInstances': X.shape[0],
+        'NumberOfFeatures': X.shape[1],
+        'Dimensionality': X.shape[1] / X.shape[0] if X.shape[0] > 0 else np.nan
+    }
+    return meta_features
+
+
+def compute_statistical_meta_features(X: np.ndarray, y: np.ndarray) -> dict[str, float]:
+    from sklearn.feature_selection import mutual_info_classif
+    from scipy.stats import entropy
+
+    y = np.asarray(y)
+    class_counts = np.bincount(y)
+    class_probs = class_counts / len(y)
+
+    mi = mutual_info_classif(X, y, discrete_features='auto')
+
+    return {
+        "ClassEntropy": entropy(class_probs),
+        "MeanMutualInformation": np.mean(mi),
+        "MaxMutualInformation": np.max(mi),
+        "MinMutualInformation": np.min(mi),
+        "MajorityClassPercentage": np.max(class_probs) * 100,
+        "MinorityClassPercentage": np.min(class_probs) * 100,
+    }
+
 
 def save_meta_record(meta_features: dict, best_model_name: str, best_model_params: dict, best_model_score: float, dataset_size: str, file_path: str = "meta_database.json") -> None:
     # En main.py, al final de fit()

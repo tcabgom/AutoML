@@ -140,7 +140,6 @@ class BayesianSearchAutoML:
             if len(initial_points) > 0:
                 print(f"Enqueuing {len(initial_points)} initial points from meta-learning warm start.")
             for point in initial_points:
-                print(point)
                 algo_name = point["algorithm"]
                 hyperparams = point["hyperparameters"]
                 formatted_params = {"algorithm": algo_name}
