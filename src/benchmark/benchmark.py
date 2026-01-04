@@ -47,7 +47,7 @@ def run():
             ExtremeGradientBoosting.Algorithm_XGBC()
         ]
 
-        for fold in range(10):
+        for fold in [0]:#range(10):
 
             # Realizar particion
             X_train, y_train = x.iloc[train_indices[fold]], y.iloc[train_indices[fold]]
@@ -66,8 +66,8 @@ def run():
                 cv=5,
                 n_jobs=CORES,
                 verbose=True,
-                collect_meta_data=True,
-                use_meta_learning=False,
+                collect_meta_data=False,
+                use_meta_learning=True,
                 n_nearest_datasets=5
             )
 

@@ -147,7 +147,6 @@ class TFM_AutoML:
 
 
 
-
     def predict(self, X: pd.DataFrame) -> np.ndarray:
         """
         Preprocess and predict using best model.
