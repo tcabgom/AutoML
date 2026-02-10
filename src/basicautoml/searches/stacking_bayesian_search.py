@@ -21,7 +21,8 @@ class StackingBayesianSearch:
                 dataset_size: str = "medium",
                 n_jobs: int = 1,
                 dataset_meta_data: dict() = None,
-                verbose: bool = False):
+                verbose: bool = False,
+                trials_csv_name: str | None = None):
 
         self.algorithms = algorithms
         self.n_trials_per_alg = n_trials
@@ -33,6 +34,7 @@ class StackingBayesianSearch:
         self.dataset_size = dataset_size
         self.n_jobs = n_jobs
         self.dataset_meta_data = dataset_meta_data
+        self.trials_csv_name = trials_csv_name
 
         self.estimators = []
         self.best_model = None
@@ -60,6 +62,7 @@ class StackingBayesianSearch:
                 dataset_size=self.dataset_size,
                 n_jobs=self.n_jobs,
                 dataset_meta_data=self.dataset_meta_data,
+                trials_csv_name=self.trials_csv_name+f'_{alg.get_name()}',
                 verbose=self.verbose
             )
             bayes.fit(X_data, y_data, x_val, y_val)
@@ -95,6 +98,7 @@ class StackingBayesianSearch:
             n_jobs=self.n_jobs,
             dataset_size=self.dataset_size,
             dataset_meta_data=self.dataset_meta_data,
+            trials_csv_name=self.trials_csv_name + "_Stacking",
             verbose=self.verbose,
         )
         self.trained_models += meta_bayes.trained_models

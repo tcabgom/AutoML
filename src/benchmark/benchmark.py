@@ -58,7 +58,7 @@ def run():
                 test_size=0.0,
                 validation_size=0.1,
                 random_state=int(time.time()),
-                search_type="random",#"stacking",
+                search_type="stacking",#"stacking",
                 algorithms=algorithms,
                 n_trials=30,
                 timeout=(HOURS*3600)/5,
@@ -68,7 +68,8 @@ def run():
                 verbose=True,
                 collect_meta_data=False,
                 use_meta_learning=False,
-                n_nearest_datasets=5
+                n_nearest_datasets=5,
+                trials_csv_name=f"automl_trials_{dataset.name}_fold{fold}"
             )
 
             automl = TFM_AutoML(config)

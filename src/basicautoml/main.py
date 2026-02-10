@@ -126,7 +126,8 @@ class TFM_AutoML:
             verbose=self.config.verbose,
             random_state=self.config.random_state,
             dataset_size=dataset_size,
-            dataset_meta_data=dataset_meta_for_searcher
+            dataset_meta_data=dataset_meta_for_searcher,
+            trials_csv_name=self.config.trials_csv_name
         )
         # Run search
         self.searcher.fit(X_train_prep, y_train, X_val_prep, y_val)

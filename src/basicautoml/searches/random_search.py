@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import numpy as np
 import optuna
 import random
@@ -20,7 +22,8 @@ class RandomSearchAutoML:
                  random_state=None,
                  dataset_size: str = "medium",
                  n_jobs: int = 1,
-                 dataset_meta_data: dict = None):
+                 dataset_meta_data: dict = None,
+                 trials_csv_name: str | None = None):
 
         self.algorithms = algorithms
         self.n_trials = n_trials
@@ -32,6 +35,7 @@ class RandomSearchAutoML:
         self.dataset_size = dataset_size
         self.n_jobs = n_jobs
         self.dataset_meta_data = dataset_meta_data
+        self.trials_csv_name = trials_csv_name
 
         self.best_score = -np.inf
         self.best_params = None
@@ -147,6 +151,13 @@ class RandomSearchAutoML:
             timeout=self.timeout,
             n_jobs=self.n_jobs
         )
+
+        if self.trials_csv_name is not None:
+            dataset_name = self.trials_csv_name + ".csv"
+        else:
+            dataset_name = f'automl_trials_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+        df = self.study.trials_dataframe(attrs=("number", "value", "params", "user_attrs"))
+        df.to_csv(dataset_name, index=False)
 
         # Retrieve best trial and rebuild best model
         self.best_score = self.study.best_value

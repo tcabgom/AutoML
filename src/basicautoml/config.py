@@ -25,6 +25,7 @@ class AutoMLConfig:
     scoring: str = "roc_auc"
     cv: int = 5
     n_jobs: int = 1
+    trials_csv_name: str = None
     verbose: bool = False
 
     # Meta Learning Settings
