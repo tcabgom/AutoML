@@ -17,7 +17,7 @@ Este proyecto experimenta con las distintas fases del ciclo de vida del aprendiz
 
 ```
 git clone https://github.com/tcabgom/AutoML.git
-cd tu-repo
+cd AutoML
 pip install -r requirements.txt
 ```
 
