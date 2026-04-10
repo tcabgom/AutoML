@@ -8,21 +8,7 @@ import logging
 
 def test_automl_pipeline():
 
-    ##### BINARY CLASSIFICATION:
-    # TINY:
-    # SMALL: kc2, credit-g, titanic (WARNING: Data leaking)
-    # MEDIUM: adult, bank-marketing, PhishingWebsites
-    # LARGE:
-    # XLARGE:
-
-    ##### MULTI-CLASS CLASSIFICATION:
-    # TINY: iris, wine
-    # SMALL:
-    # MEDIUM:
-    # LARGE: covertype
-    # XLARGE:
-
-    dataset_name = "adult" #"APSFailure"
+    dataset_name = "adult"
     loader = DataLoader(dataset_name)
     X, y = loader.load_data()
 

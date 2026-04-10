@@ -32,7 +32,7 @@ CORES = 8
 def run():
     #suite = load_benchmark_suite(271)
 
-    for task_id in [146820, 359955, 168757, 146818, 359958, 168350, 359962]: #suite.tasks:
+    for task_id in TASK_IDS_GROUP_1: #suite.tasks:
         # Obtener dataset
         x, y, dataset, train_indices, test_indices = load_task_dataset(task_id)
 
@@ -47,7 +47,7 @@ def run():
             ExtremeGradientBoosting.Algorithm_XGBC()
         ]
 
-        for fold in [0]:#range(10):
+        for fold in range(10):
 
             # Realizar particion
             X_train, y_train = x.iloc[train_indices[fold]], y.iloc[train_indices[fold]]
@@ -58,7 +58,7 @@ def run():
                 test_size=0.0,
                 validation_size=0.1,
                 random_state=int(time.time()),
-                search_type="stacking",#"stacking",
+                search_type="stacking",
                 algorithms=algorithms,
                 n_trials=30,
                 timeout=(HOURS*3600)/5,

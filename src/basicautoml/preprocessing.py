@@ -69,10 +69,6 @@ class Preprocessor:
         self.numerical_scaling_params = {}
         self.numeric_scaler = NumericScaler(method=numerical_scaling)
 
-        """self.modes: Dict[str, str] = {}
-        self.categorical_strategy = {}
-        self.encodings = {}
-        self.onehot_columns = {}"""
         self.categorical_params: Dict[str, dict] = {}
         self.categorical_encoder = CategoricalEncoder(
             method=categorical_encoding,

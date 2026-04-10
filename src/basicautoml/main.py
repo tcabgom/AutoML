@@ -22,7 +22,6 @@ class TFM_AutoML:
         random.seed(config.random_state)
 
         # Create preprocessor
-        # TODO Maybe allow to skip preprocessing?
         from .preprocessing import Preprocessor
         self.preprocessor = Preprocessor(**config.preprocessor_params)
         self.skip_preprocessing = config.skip_preprocessing
@@ -93,16 +92,12 @@ class TFM_AutoML:
         else:
             X_val, y_val = None, None
 
-        #X_train.to_csv("before_preprocessed_data.csv", index=True)
-
         # Preprocess
         if self.preprocessor is not None and not self.skip_preprocessing:
             X_train_prep = self.preprocessor.fit_transform(X_train)
             X_val_prep = self.preprocessor.transform(X_val) if X_val is not None else None
         else:
             X_train_prep, X_val_prep = X_train, X_val
-
-        #X_train_prep.to_csv("preprocessed_data.csv", index=True)
 
         # Initialize searcher
         if self.config.search_type == 'bayesian':
@@ -191,7 +186,6 @@ class TFM_AutoML:
         """
         Score the best model on provided data.
         """
-        #X.to_csv("before_preprocessed_data_test.csv", index=True)
         if self.best_model is None:
             raise RuntimeError("Model not trained. Call fit() first.")
 
@@ -199,8 +193,6 @@ class TFM_AutoML:
             X_prep = self.preprocessor.transform(X)
         else:
             X_prep = X
-
-        #X_prep.to_csv("preprocessed_data_test.csv", index=True)
 
         if hasattr(self, "label_encoder_y") and self.label_encoder_y is not None:
             # Solo transformar si y contiene etiquetas originales (no numericas 0..n-1)
