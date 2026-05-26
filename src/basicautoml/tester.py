@@ -3,8 +3,8 @@ from src.basicautoml.algorithms.classification import DecisionTree, RandomForest
 from src.basicautoml.main import TFM_AutoML
 from src.basicautoml.config import AutoMLConfig
 from src.basicautoml.utils.data_loader import DataLoader
-from sklearn.metrics import classification_report
-import logging
+#from sklearn.metrics import classification_report
+#import logging
 
 def test_automl_pipeline():
 
