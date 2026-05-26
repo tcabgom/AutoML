@@ -24,3 +24,7 @@ pip install -r requirements.txt
 ## Configuración
 
 El comportamiento del sistema se controla mediante `AutoMLConfig`.
+
+## Uso de sistema
+
+Para probar el sistema, ejecutar el archivo `tester.py` en `src/benchmark`.
